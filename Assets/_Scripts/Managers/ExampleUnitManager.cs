@@ -7,8 +7,8 @@ using UnityEngine;
 public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
     public void SpawnHeroes() {
-        SpawnUnit(ExampleHeroType.Tarodev, new Vector3(1, -1, 0));
-        SpawnUnit(ExampleHeroType.Snorlax, new Vector3(2, -1, 0));
+        SpawnUnit(ExampleHeroType.Tarodev, new Vector3(1, 0, 0));
+        SpawnUnit(ExampleHeroType.Snorlax, new Vector3(2, 0, 0));
     }
 
     void SpawnUnit(ExampleHeroType t, Vector3 pos) {
