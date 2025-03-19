@@ -21,9 +21,12 @@ public class GridManager : MonoBehaviour {
 
         /* TODO: This logic is for rectangles, we need to change it to hexagons */
         for (int x = 0; x < width; x++) {
+            /* Start at 1 to avoid overlapping tiles */
             for (int y = 0; y < height; y++) {
                 float xPos = x ;
-                float yPos = y * 0.8f; ;
+                float yPos = y * 0.8f;
+
+                yPos += 1.0f;
 
                 if (y % 2 != 0) {
                     xPos += 0.5f;
