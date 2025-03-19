@@ -19,4 +19,9 @@ public class Tile : MonoBehaviour {
     {
         _highlight.SetActive(false);
     }
+
+    public void SetUnit(BaseUnit unit) {
+        unit.transform.position = transform.position;
+        unit.transform.position += new Vector3(0, 0.3f, 0);
+    }
 }

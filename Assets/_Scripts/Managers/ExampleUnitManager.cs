@@ -6,20 +6,30 @@ using UnityEngine;
 /// </summary>
 public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
-    public void SpawnHeroes() {
-        SpawnUnit(ExampleHeroType.Tarodev, new Vector3(1, 0, 0));
-        SpawnUnit(ExampleHeroType.Snorlax, new Vector3(2, 0, 0));
+    public void SpawnHeroes(Character[] characters) {
+        foreach (var character in characters) {
+            SpawnUnit(character);
+        }
     }
 
-    void SpawnUnit(ExampleHeroType t, Vector3 pos) {
-        var tarodevScriptable = ResourceSystem.Instance.GetExampleHero(t);
+    void SpawnUnit(Character character) {
 
-        var spawned = Instantiate(tarodevScriptable.Prefab, pos, Quaternion.identity,transform);
+        var playerUnit = ResourceSystem.Instance.Units.Find(u => u.Faction == Faction.Player).UnitPrefab;
+        if (playerUnit == null) {
+            Debug.LogError("Player unit not found in the resource system");
+            return;
+        }
+
+        var spawnedUnit = Instantiate(playerUnit);
+
+        // Set the position of the unit
+        var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(character.position.x, character.position.y));
+        spawnTile.SetUnit(spawnedUnit);
 
         // Apply possible modifications here such as potion boosts, team synergies, etc
-        var stats = tarodevScriptable.BaseStats;
+        // var stats = playerScriptable.BaseStats;
         // stats.Health += 20;
 
-        spawned.SetStats(stats);
+        // spawned.SetStats(stats);
     }
 }

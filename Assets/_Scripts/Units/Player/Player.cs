@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tarodev : HeroUnitBase {
+public class Player : BasePlayer {
+
+    void Awake() {
+        transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+    }
 
     void Start() {
         // Example usage of a static system

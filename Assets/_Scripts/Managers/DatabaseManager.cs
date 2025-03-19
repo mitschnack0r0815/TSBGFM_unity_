@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using System;
 using System.Text;
 using System.Collections;
+using UnityEngine.UIElements;
 
 public class DatabaseManager : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class DatabaseManager : MonoBehaviour
 
     // Public property to store the characters array
     public Character[] Characters { get; private set; }
+
+    public GameStatus GameStatus { get; private set; }
 
     // Public variable to indicate if data is loaded
     public bool IsDataLoaded { get; private set; } = false;
@@ -38,12 +41,72 @@ public class DatabaseManager : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 Debug.Log("DatabaseManager - PostInitGame\nResponse: " + request.downloadHandler.text);
+                GameStatus = HandleJsonResponseGame(request.downloadHandler.text);
             }
             else
             {
                 Debug.LogError("Error: " + request.error);
             }
         }
+    }
+
+    // Example JSON response for GameStatus
+    /*
+    {
+        "gameNumber": 15,
+        "board": {
+            "x": 10,
+            "y": 10,
+            "_id": "67dafe07e8ba2eb65d873d8b"
+        },
+        "chars": [
+            {
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "_id": "67d7287d15edcc39a0ba4fd9",
+                "name": "Elon",
+                "life": 90,
+                "armor": 2,
+                "weapon": {
+                    "name": "Axe",
+                    "dice": "1W12",
+                    "initiative": 1,
+                    "type": "Axe",
+                    "_id": "67d7287d15edcc39a0ba4fda"
+                },
+                "__v": 0
+            },
+            {
+                "position": {
+                    "x": 0,
+                    "y": 1
+                },
+                "_id": "67d7287d15edcc39a0ba4fd6",
+                "name": "Donald",
+                "life": 120,
+                "armor": 1,
+                "weapon": {
+                    "name": "Sword",
+                    "dice": "2W6",
+                    "initiative": 5,
+                    "type": "Sword",
+                    "_id": "67d7287d15edcc39a0ba4fd7"
+                },
+                "__v": 0
+            }
+        ],
+        "_id": "67dafe07e8ba2eb65d873d8a",
+        "createdAt": "2025-03-19T17:25:27.406Z",
+        "__v": 0
+    }
+    */
+
+    GameStatus HandleJsonResponseGame(string json)
+    {
+        GameStatus gameStatus = JsonUtility.FromJson<GameStatus>(json);
+        return gameStatus;
     }
 
     IEnumerator GetCharacters()
@@ -57,7 +120,7 @@ public class DatabaseManager : MonoBehaviour
                 Debug.Log("DatabaseManager - GetCharacters\nServer Response: " + request.downloadHandler.text);
 
                 // Parse the JSON response
-                Characters = HandleJsonResponse(request.downloadHandler.text);
+                Characters = HandleJsonResponseCharacters(request.downloadHandler.text);
                 IsDataLoaded = true;
             }
             else
@@ -67,7 +130,7 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    Character[] HandleJsonResponse(string json)
+    Character[] HandleJsonResponseCharacters(string json)
     {
         // Wrap the JSON array in a class to deserialize it
         string wrappedJson = "{\"Characters\":" + json + "}";
@@ -75,6 +138,25 @@ public class DatabaseManager : MonoBehaviour
 
         return characterList.Characters;
     }
+}
+
+[Serializable]
+public class GameStatus
+{
+    public string _id;
+    public int gameNumber;
+    public Board board;
+    public Character[] chars;
+    public DateTime createdAt;
+    public int __v;
+}
+
+[Serializable]
+public class Board
+{
+    public int x;
+    public int y;
+    public string _id;
 }
 
 [Serializable]
@@ -91,7 +173,15 @@ public class Character
     public int life;
     public int armor;
     public Weapon weapon;
+    public BoardPos position;
     public int __v;
+}
+
+[Serializable]
+public class BoardPos
+{
+    public int x;
+    public int y;
 }
 
 [Serializable]

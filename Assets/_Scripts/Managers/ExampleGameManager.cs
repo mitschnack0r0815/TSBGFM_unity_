@@ -84,14 +84,14 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             // {
             //     Debug.Log($"Name: {character.name}, Health: {character.life}, Armor: {character.armor}, Weapon: {character.weapon.type}");
             // }
+
+            ExampleUnitManager.Instance.SpawnHeroes(dbManager.GameStatus.chars);
+            ChangeState(GameState.SpawningEnemies);
         }
         else
         {
             Debug.LogError("DatabaseManager not found or Characters not loaded");
         }
-        ExampleUnitManager.Instance.SpawnHeroes();
-        
-        ChangeState(GameState.SpawningEnemies);
     }
 
     private void HandleSpawningEnemies() {

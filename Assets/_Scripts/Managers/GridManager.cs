@@ -23,7 +23,11 @@ public class GridManager : MonoBehaviour {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 float xPos = x ;
-                float yPos = y ;
+                float yPos = y * 0.8f; ;
+
+                if (y % 2 != 0) {
+                    xPos += 0.5f;
+                }
 
                 var spawnedTile = Instantiate(_tilePrefab, new Vector3(xPos, yPos), Quaternion.identity);
                 spawnedTile.name = $"Tile {x} {y}";
