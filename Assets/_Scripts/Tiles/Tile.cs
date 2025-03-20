@@ -6,18 +6,28 @@ public class Tile : MonoBehaviour {
     // [SerializeField] private Color _baseColor, _offsetColor;
     // [SerializeField] private SpriteRenderer _renderer;
     [SerializeField] private GameObject _highlight;
+
+    [SerializeField] public GameObject MovableHighlight;
+
+    [SerializeField] public GameObject MouseHighlight;
+
+    [SerializeField] public bool isMovable = false;
  
     public void Init(bool isOffset) {
         // _renderer.color = isOffset ? _offsetColor : _baseColor;
     }
  
     void OnMouseEnter() {
-        _highlight.SetActive(true);
+        if (isMovable) {
+            MouseHighlight.SetActive(true);
+        }
     }
  
     void OnMouseExit()
     {
-        _highlight.SetActive(false);
+        if (isMovable) {
+            MouseHighlight.SetActive(false);
+        }
     }
 
     public void SetUnit(BaseUnit unit) {

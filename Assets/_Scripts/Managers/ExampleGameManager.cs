@@ -10,17 +10,22 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     public static event Action<GameState> OnBeforeStateChanged;
     public static event Action<GameState> OnAfterStateChanged;
 
+    [SerializeField] private Transform _cam;
+
     public GameState State { get; private set; }
 
-    private DatabaseManager dbManager;
+    public Character LogInPlayer { get; set; }
+
+    private DatabaseManager _dbManager;
 
     // Kick the game off with the first state
     void Start() {
-        dbManager = FindFirstObjectByType<DatabaseManager>();
-        if (dbManager == null) {
+        _dbManager = DatabaseManager.Instance;
+        if (_dbManager == null) {
             Debug.LogError("DatabaseManager not found");
         }
-        ChangeState(GameState.Starting);
+        // Start a coroutine to wait for the db data to be loaded
+        StartCoroutine(WaitForDataAndChangeState());
     }
 
     public void ChangeState(GameState newState) {
@@ -55,43 +60,49 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         Debug.LogWarning($"New state: {newState}");
     }
 
-    private void HandleStarting() {
-        // Do some start setup, could be environment, cinematics etc
-        GridManager.Instance.GenerateGrid(10, 10);
-
-        // Start a coroutine to wait for the db data to be loaded
-        StartCoroutine(WaitForDataAndChangeState());
-    }
-
     private IEnumerator WaitForDataAndChangeState() {
-        if (dbManager != null) {
+        if (_dbManager != null) {
             // Wait until the data is loaded
-            while (!dbManager.IsDataLoaded) {
+            while (!_dbManager.IsDataLoaded) {
                 yield return null;
-            }
-
-            // Data is loaded, change to the next state
-            ChangeState(GameState.SpawningHeroes);
+            }           
+            ChangeState(GameState.Starting);            
         } else {
             Debug.LogError("DatabaseManager not found");
         }
     }
 
-    private void HandleSpawningHeroes() {
-        if (dbManager != null && dbManager.Characters != null)
-        {
-            // foreach (Character character in dbManager.Characters)
-            // {
-            //     Debug.Log($"Name: {character.name}, Health: {character.life}, Armor: {character.armor}, Weapon: {character.weapon.type}");
-            // }
+    private void HandleStarting() {
+        if (!_dbManager.IsDataLoaded) DatabaseNotLoaded();
 
-            ExampleUnitManager.Instance.SpawnHeroes(dbManager.GameStatus.chars);
-            ChangeState(GameState.SpawningEnemies);
-        }
-        else
-        {
-            Debug.LogError("DatabaseManager not found or Characters not loaded");
-        }
+        // For now, set the first character to the login player
+        LogInPlayer = _dbManager.Characters[0]; 
+
+        // Do some start setup, could be environment, cinematics etc
+        GridManager.Instance.GenerateGrid(_dbManager.GameStatus.board);
+
+        ChangeState(GameState.SpawningHeroes);
+    }
+
+
+    private void HandleSpawningHeroes() {
+        if (!_dbManager.IsDataLoaded) DatabaseNotLoaded();
+        
+        ExampleUnitManager.Instance.SpawnPlayers(_dbManager.GameStatus.chars);
+
+        var LogInUnit = ExampleUnitManager.Instance.GetLogInUnit;
+        _cam.transform.position = LogInUnit.transform.position + new Vector3(0, 0, -10);
+        
+        // Highlight the movable tiles
+        // var movableTiles = new Vector2[2] { 
+        //     new Vector2(LogInPlayer.position.x + 1, LogInPlayer.position.y), 
+        //     new Vector2(LogInPlayer.position.x, LogInPlayer.position.y + 1) 
+        //     };
+        var logInPlayerPos = new Vector2(LogInPlayer.position.x, LogInPlayer.position.y);
+        var movableList = GridManager.Instance.GetMovableTiles(logInPlayerPos);
+        GridManager.Instance.HighlightMovableTiles(movableList);
+
+        ChangeState(GameState.SpawningEnemies);
     }
 
     private void HandleSpawningEnemies() {
@@ -106,6 +117,10 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         
         // Keep track of how many units need to make a move, once they've all finished, change the state. This could
         // be monitored in the unit manager or the units themselves.
+    }
+
+    private void DatabaseNotLoaded() {
+        Debug.LogError("Database not loaded");
     }
 }
 

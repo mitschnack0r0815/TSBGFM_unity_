@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,6 +8,8 @@ public class MainMenuScreen : MonoBehaviour
 {
     [SerializeField] private UIDocument _uiDocument;
     [SerializeField] private StyleSheet _styleSheet;
+
+    public static event Action OnTestBtnClicked;
 
     private void Start()
     {
@@ -39,16 +42,13 @@ public class MainMenuScreen : MonoBehaviour
         controlbox.Add(titleLable);
 
         var testBtn_0 = CreateElement<Button>("main-btn");
-        //  var playButton = new Button(() => { 
-        //     Debug.Log("Play Button Clicked"); 
-        // });
+        testBtn_0.clicked += () => Debug.Log("testBtn_0 clicked");
+        testBtn_0.clicked += OnTestBtnClicked;
         testBtn_0.text = "testBtn_0";
         controlbox.Add(testBtn_0);
 
         var testBtn_1 = CreateElement<Button>("main-btn");
-        //  var playButton = new Button(() => { 
-        //     Debug.Log("Play Button Clicked"); 
-        // });
+ 
         testBtn_1.text = "testBtn_1";
         controlbox.Add(testBtn_1);
 

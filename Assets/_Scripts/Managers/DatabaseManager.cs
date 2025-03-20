@@ -4,8 +4,10 @@ using System;
 using System.Text;
 using System.Collections;
 using UnityEngine.UIElements;
+using NUnit.Framework.Constraints;
+using Unity.VisualScripting;
 
-public class DatabaseManager : MonoBehaviour
+public class DatabaseManager : StaticInstance<DatabaseManager>
 {
     private string apiUrl = "http://localhost:3001/api/";
 
@@ -19,8 +21,19 @@ public class DatabaseManager : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(GetCharacters());
-        StartCoroutine(PostInitGame());
+        StartCoroutine(InitializeGame());
+    }
+
+    IEnumerator InitializeGame()
+    {
+        // Wait for GetCharacters coroutine to complete
+        yield return StartCoroutine(GetCharacters());
+
+        // Wait for PostInitGame coroutine to complete
+        yield return StartCoroutine(PostInitGame());
+
+        // Optionally, set IsDataLoaded to true if both coroutines are successful
+        IsDataLoaded = true;
     }
 
     IEnumerator PostInitGame()
@@ -50,62 +63,49 @@ public class DatabaseManager : MonoBehaviour
         }
     }
 
-    // Example JSON response for GameStatus
-    /*
+    private string ExtractMapJson(string json)
     {
-        "gameNumber": 15,
-        "board": {
-            "x": 10,
-            "y": 10,
-            "_id": "67dafe07e8ba2eb65d873d8b"
-        },
-        "chars": [
-            {
-                "position": {
-                    "x": 0,
-                    "y": 0
-                },
-                "_id": "67d7287d15edcc39a0ba4fd9",
-                "name": "Elon",
-                "life": 90,
-                "armor": 2,
-                "weapon": {
-                    "name": "Axe",
-                    "dice": "1W12",
-                    "initiative": 1,
-                    "type": "Axe",
-                    "_id": "67d7287d15edcc39a0ba4fda"
-                },
-                "__v": 0
-            },
-            {
-                "position": {
-                    "x": 0,
-                    "y": 1
-                },
-                "_id": "67d7287d15edcc39a0ba4fd6",
-                "name": "Donald",
-                "life": 120,
-                "armor": 1,
-                "weapon": {
-                    "name": "Sword",
-                    "dice": "2W6",
-                    "initiative": 5,
-                    "type": "Sword",
-                    "_id": "67d7287d15edcc39a0ba4fd7"
-                },
-                "__v": 0
-            }
-        ],
-        "_id": "67dafe07e8ba2eb65d873d8a",
-        "createdAt": "2025-03-19T17:25:27.406Z",
-        "__v": 0
+        // Extract the map JSON object from the provided JSON string
+        int startIndex = json.IndexOf("\"map\":") + 6;
+        int endIndex = json.IndexOf("]]", startIndex) + 2;
+        string mapJson = json.Substring(startIndex, endIndex - startIndex);
+        return  mapJson;
     }
-    */
 
+    // Method to handle JSON response for GameStatus
     GameStatus HandleJsonResponseGame(string json)
-    {
+    {      
         GameStatus gameStatus = JsonUtility.FromJson<GameStatus>(json);
+
+        // HAndle the map object separately
+        string mapJson = ExtractMapJson(json);
+        int[][] map = new int[gameStatus.board.x][];
+        for (int i = 0; i < gameStatus.board.x; i++)
+        {
+            map[i] = new int[gameStatus.board.y];
+            for (int j = 0; j < gameStatus.board.y; j++)
+            {
+                map[i][j] = 0;
+            }
+        }
+        
+        int x = 0;
+        int y = 0;
+        foreach (char c in mapJson)
+        {   
+            if (char.IsDigit(c))
+            {
+                map[x][y] = (int)char.GetNumericValue(c);
+                x++;
+            }
+            if (c == ']')
+            {
+                x = 0;
+                y++;
+            }
+        }
+
+        gameStatus.board.map = map;
         return gameStatus;
     }
 
@@ -121,7 +121,6 @@ public class DatabaseManager : MonoBehaviour
 
                 // Parse the JSON response
                 Characters = HandleJsonResponseCharacters(request.downloadHandler.text);
-                IsDataLoaded = true;
             }
             else
             {
@@ -154,9 +153,11 @@ public class GameStatus
 [Serializable]
 public class Board
 {
+    public string _id;
     public int x;
     public int y;
-    public string _id;
+    public int[][] map;
+    public int __v;
 }
 
 [Serializable]
