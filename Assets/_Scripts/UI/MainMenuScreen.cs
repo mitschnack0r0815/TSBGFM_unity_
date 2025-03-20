@@ -25,33 +25,45 @@ public class MainMenuScreen : MonoBehaviour
         var root = _uiDocument.rootVisualElement;
         root.styleSheets.Add(_styleSheet);
 
-        // var titleLable = new Label("Main Menu");
-        // root.Add(titleLable);
-
-        // var playButton = new Button(() => { 
-        //     Debug.Log("Play Button Clicked"); 
-        // });
-        // playButton.text = "TestBtn";
-        // playButton.AddToClassList("TestBtn");
-        // root.Add(playButton);
-
+   
         var container = CreateElement<VisualElement>("container");
 
-        var viewBox = CreateElement<VisualElement>("view-box");
-        container.Add(viewBox);
+        // var viewBox = CreateElement<VisualElement>("view-box");
+        // container.Add(viewBox);
 
-        var controlbox = CreateElement<VisualElement>("control-box");
+        var controlbox = CreateElement<VisualElement>("control-box","bordered-box");
         container.Add(controlbox);
+
+        var titleLable = CreateElement<Label>("main-lable");
+        titleLable.text = "Main Menu";
+        controlbox.Add(titleLable);
+
+        var testBtn_0 = CreateElement<Button>("main-btn");
+        //  var playButton = new Button(() => { 
+        //     Debug.Log("Play Button Clicked"); 
+        // });
+        testBtn_0.text = "testBtn_0";
+        controlbox.Add(testBtn_0);
+
+        var testBtn_1 = CreateElement<Button>("main-btn");
+        //  var playButton = new Button(() => { 
+        //     Debug.Log("Play Button Clicked"); 
+        // });
+        testBtn_1.text = "testBtn_1";
+        controlbox.Add(testBtn_1);
 
         root.Add(container);
 
         yield break;
     }
 
-    T CreateElement<T>(string className) where T : VisualElement, new()
+    T CreateElement<T>(params string[] classNames) where T : VisualElement, new()
     {
         var element = new T();
-        element.AddToClassList(className);
+        foreach (var className in classNames)
+        {
+            element.AddToClassList(className);
+        }
         return element;
     }
 }
