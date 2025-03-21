@@ -6,14 +6,22 @@ using UnityEngine.UIElements;
 
 public class MainMenuScreen : MonoBehaviour
 {
+    public static MainMenuScreen Instance;
     [SerializeField] private UIDocument _uiDocument;
     [SerializeField] private StyleSheet _styleSheet;
 
+    public Label CurrPlayerLable { get; set; }
+
+    public DropdownField PlayerDropdown { get; set; }
+    public static event Action OnPlayerDropdownChoose;
+
     public static event Action OnTestBtnClicked;
+
+
 
     private void Start()
     {
-        StartCoroutine(Generate());
+        // StartCoroutine(Generate());
     }
 
     private void OnValidate()
@@ -21,6 +29,15 @@ public class MainMenuScreen : MonoBehaviour
         if (Application.isPlaying) return;
         /* This will allow us to see the changes in the editor */
         // StartCoroutine(Generate());
+    }
+
+    void Awake() {
+        Instance = this;
+    }
+
+    public void GenerateUI()
+    {
+        StartCoroutine(Generate());
     }
 
     private IEnumerator Generate()
@@ -41,16 +58,40 @@ public class MainMenuScreen : MonoBehaviour
         titleLable.text = "Main Menu";
         controlbox.Add(titleLable);
 
+        CurrPlayerLable = CreateElement<Label>("player-info");
+        controlbox.Add(CurrPlayerLable);
+
         var testBtn_0 = CreateElement<Button>("main-btn");
         testBtn_0.clicked += () => Debug.Log("testBtn_0 clicked");
         testBtn_0.clicked += OnTestBtnClicked;
-        testBtn_0.text = "testBtn_0";
+        testBtn_0.text = "Test Button";
         controlbox.Add(testBtn_0);
 
-        var testBtn_1 = CreateElement<Button>("main-btn");
- 
-        testBtn_1.text = "testBtn_1";
-        controlbox.Add(testBtn_1);
+        var reloadBtn = CreateElement<Button>("main-btn");
+        reloadBtn.clicked += () => {
+            Debug.Log("Reload GameState");
+            ExampleGameManager.Instance.ChangeState(GameState.Starting);
+        };
+        reloadBtn.text = "Reload";
+        controlbox.Add(reloadBtn);
+
+        // var player_1 = CreateElement<Button>("main-btn");
+        // player_1.text = "Player 1";
+        // player_1.clicked += () => {
+        //     Debug.Log("Player 1 clicked");
+        // };
+        // controlbox.Add(player_1);
+
+        // var player_2 = CreateElement<Button>("main-btn");
+        // player_2.text = "Player 2";
+        // player_2.clicked += () => {
+        //     Debug.Log("Player 2 clicked");
+        // };
+        // controlbox.Add(player_2);
+
+        PlayerDropdown = CreateElement<DropdownField>("player-dropdown");
+        PlayerDropdown.RegisterValueChangedCallback(evt => OnPlayerDropdownChoose?.Invoke());
+        controlbox.Add(PlayerDropdown);
 
         root.Add(container);
 

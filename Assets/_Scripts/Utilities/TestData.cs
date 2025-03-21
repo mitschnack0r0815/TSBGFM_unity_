@@ -1,0 +1,10 @@
+using UnityEngine;
+
+/// <summary>
+/// A static class for general helpful methods
+/// </summary>
+public static class TestData 
+{    
+    public static string chars = "[{\"position\":{\"x\":8,\"y\":8},\"_id\":\"67d7287d15edcc39a0ba4fd6\",\"name\":\"Donald\",\"life\":120,\"armor\":1,\"weapon\":{\"name\":\"Sword\",\"dice\":\"2W6\",\"initiative\":5,\"type\":\"Sword\",\"_id\":\"67d7287d15edcc39a0ba4fd7\"},\"__v\":0},{\"position\":{\"x\":1,\"y\":1},\"_id\":\"67d7287d15edcc39a0ba4fd9\",\"name\":\"Elon\",\"life\":90,\"armor\":2,\"weapon\":{\"name\":\"Axe\",\"dice\":\"1W12\",\"initiative\":1,\"type\":\"Axe\",\"_id\":\"67d7287d15edcc39a0ba4fda\"},\"__v\":0},{\"position\":{\"x\":0,\"y\":0},\"_id\":\"67d73b74f32b9014a5e1dd10\",\"name\":\"Player A\",\"life\":100,\"armor\":1,\"weapon\":{\"name\":\"Sword\",\"dice\":\"1W6\",\"initiative\":5,\"type\":\"Sword\",\"_id\":\"67d73b74f32b9014a5e1dd11\"},\"__v\":0},{\"position\":{\"x\":0,\"y\":0},\"_id\":\"67d73b74f32b9014a5e1dd13\",\"name\":\"Player B\",\"life\":100,\"armor\":1,\"weapon\":{\"name\":\"Axe\",\"dice\":\"1W12\",\"initiative\":1,\"type\":\"Axe\",\"_id\":\"67d73b74f32b9014a5e1dd14\"},\"__v\":0}]";
+    public static string gameStatus = "{\"gameNumber\":2,\"board\":{\"_id\":\"67dc69d7ff37bd1f38bb7118\",\"x\":10,\"y\":10,\"map\":[[0,0,1,1,1,1,1,1,0,0],[0,1,1,1,1,2,2,1,1,0],[1,2,1,1,3,3,1,1,2,1],[1,2,1,1,3,1,1,1,3,1],[1,2,1,2,1,1,1,2,1,1],[1,1,1,2,2,2,2,2,1,1],[1,2,2,1,2,1,1,1,1,1],[1,1,1,1,1,1,3,3,1,1],[0,1,1,1,2,1,1,2,1,0],[0,0,1,1,1,1,1,1,0,0]],\"__v\":0},\"chars\":[{\"position\":{\"x\":1,\"y\":1},\"_id\":\"67d7287d15edcc39a0ba4fd9\",\"name\":\"Elon\",\"life\":90,\"armor\":2,\"weapon\":{\"name\":\"Axe\",\"dice\":\"1W12\",\"initiative\":1,\"type\":\"Axe\",\"_id\":\"67d7287d15edcc39a0ba4fda\"},\"__v\":0},{\"position\":{\"x\":8,\"y\":8},\"_id\":\"67d7287d15edcc39a0ba4fd6\",\"name\":\"Donald\",\"life\":120,\"armor\":1,\"weapon\":{\"name\":\"Sword\",\"dice\":\"2W6\",\"initiative\":5,\"type\":\"Sword\",\"_id\":\"67d7287d15edcc39a0ba4fd7\"},\"__v\":0}],\"_id\":\"67dd9cc6511df5c41bf001ad\",\"createdAt\":\"2025-03-21T17:07:18.126Z\"}";
+}

@@ -7,32 +7,39 @@ using System.Collections.Generic;
 /// </summary>
 public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
-    public List<BaseUnit> Units = new List<BaseUnit>();
+    public List<Player> Players = new();
 
-    BaseUnit _logInUnit;
+    public Player LogInPlayerUnit;
 
     public void SpawnPlayers(Character[] characters) {
         foreach (var character in characters) {
-            SpawnUnit(character);
+            SpawnPlayer(character);
         }
     }
 
-    BaseUnit SpawnUnit(Character character) {
+    Player SpawnPlayer(Character character) {
 
         var playerUnit = ResourceSystem.Instance.Units.Find(u => u.Faction == Faction.Player).UnitPrefab;
         if (playerUnit == null) {
             Debug.LogError("Player unit not found in the resource system");
             return null;
-        }
+        }        
 
-        var spawnedUnit = Instantiate(playerUnit);
+        var spawnedUnit = (Player) Instantiate(playerUnit);
+
+        if (ExampleGameManager.Instance.LoginPlayerCharacter != null && 
+            character.name == ExampleGameManager.Instance.LoginPlayerCharacter.name) 
+        {
+            LogInPlayerUnit = spawnedUnit;
+        }
 
         // Set the position of the unit
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(character.position.x, character.position.y));
         spawnTile.SetUnit(spawnedUnit);
 
+        spawnedUnit.character = character;
         spawnedUnit.name = "Unit_" + character.name;
-        Units.Add(spawnedUnit);
+        Players.Add(spawnedUnit);
 
         // Apply possible modifications here such as potion boosts, team synergies, etc
         // var stats = playerScriptable.BaseStats;
@@ -41,14 +48,9 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         // spawned.SetStats(stats);
         return spawnedUnit;
     }
-    
-    public BaseUnit GetLogInUnit {
-        get {
-            if (_logInUnit == null) {
-                _logInUnit = Units.Find(u => u.name == "Unit_" + ExampleGameManager.Instance.LogInPlayer.name);
-            }
-            return _logInUnit;
-        }
+
+    public Player GetPlayer(string name) {
+        return Players.Find(player => player.character.name == name);
     }
 }
 

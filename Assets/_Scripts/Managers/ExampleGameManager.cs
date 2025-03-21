@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Android;
 
 /// <summary>
 /// Nice, easy to understand enum-based game manager. For larger and more complex games, look into
@@ -14,7 +16,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
     public GameState State { get; private set; }
 
-    public Character LogInPlayer { get; set; }
+    public Character LoginPlayerCharacter { get; set; }
 
     private DatabaseManager _dbManager;
 
@@ -24,8 +26,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         if (_dbManager == null) {
             Debug.LogError("DatabaseManager not found");
         }
-        // Start a coroutine to wait for the db data to be loaded
-        StartCoroutine(WaitForDataAndChangeState());
+        ChangeState(GameState.Loading);
     }
 
     public void ChangeState(GameState newState) {
@@ -33,11 +34,15 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
         State = newState;
         switch (newState) {
+            case GameState.Loading:
+                // Start a coroutine to wait for the db data to be loaded
+                StartCoroutine(HandleLoading());
+                break;
             case GameState.Starting:
                 HandleStarting();
                 break;
-            case GameState.SpawningHeroes:
-                HandleSpawningHeroes();
+            case GameState.SpawningPlayers:
+                HandleHeroes();
                 break;
             case GameState.SpawningEnemies:
                 // HandleSpawningEnemies();
@@ -60,12 +65,16 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         Debug.LogWarning($"New state: {newState}");
     }
 
-    private IEnumerator WaitForDataAndChangeState() {
+    private IEnumerator HandleLoading() {
         if (_dbManager != null) {
             // Wait until the data is loaded
             while (!_dbManager.IsDataLoaded) {
                 yield return null;
             }           
+
+            MainMenuScreen.Instance.GenerateUI();
+            GridManager.Instance.GenerateGrid(_dbManager.GameStatus.board);
+
             ChangeState(GameState.Starting);            
         } else {
             Debug.LogError("DatabaseManager not found");
@@ -76,36 +85,49 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         if (!_dbManager.IsDataLoaded) DatabaseNotLoaded();
 
         // For now, set the first character to the login player
-        LogInPlayer = _dbManager.Characters[0]; 
+        SetLoginPlayer(_dbManager.Characters[0]);        
 
-        // Do some start setup, could be environment, cinematics etc
-        GridManager.Instance.GenerateGrid(_dbManager.GameStatus.board);
-
-        ChangeState(GameState.SpawningHeroes);
+        ChangeState(GameState.SpawningPlayers);
     }
 
 
-    private void HandleSpawningHeroes() {
-        if (!_dbManager.IsDataLoaded) DatabaseNotLoaded();
-        
-        ExampleUnitManager.Instance.SpawnPlayers(_dbManager.GameStatus.chars);
+    private void HandleHeroes() {
+        if (!_dbManager.IsDataLoaded) {
+            DatabaseNotLoaded();
+            return;
+        }
 
-        var LogInUnit = ExampleUnitManager.Instance.GetLogInUnit;
-        _cam.transform.position = LogInUnit.transform.position + new Vector3(0, 0, -10);
-        
-        // Highlight the movable tiles
-        // var movableTiles = new Vector2[2] { 
-        //     new Vector2(LogInPlayer.position.x + 1, LogInPlayer.position.y), 
-        //     new Vector2(LogInPlayer.position.x, LogInPlayer.position.y + 1) 
-        //     };
-        var logInPlayerPos = new Vector2(LogInPlayer.position.x, LogInPlayer.position.y);
-        var movableList = GridManager.Instance.GetMovableTiles(logInPlayerPos);
-        GridManager.Instance.HighlightMovableTiles(movableList);
+        if (ExampleUnitManager.Instance.Players.Count > 0) {
+            Debug.Log("Players already spawned");
+            return;
+        } else {
+            Debug.LogWarning("Spawning players");
+
+            // Spawn the players
+            ExampleUnitManager.Instance.SpawnPlayers(_dbManager.GameStatus.chars);
+
+            // Set the player dropdown
+            var dropdown = MainMenuScreen.Instance.PlayerDropdown;
+            dropdown.choices = ExampleUnitManager.Instance.Players.ConvertAll(u => u.name);
+            dropdown.value = dropdown.choices[0];
+            MainMenuScreen.OnPlayerDropdownChoose += () => {
+                Debug.Log("Player dropdown changed: " + dropdown.value);
+                string playerName = dropdown.value.Replace("Unit_", "");
+                SetLoginPlayer(ExampleUnitManager.Instance.GetPlayer(playerName).character);
+            };
+
+            // Set the camera to the login player
+            var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
+            _cam.transform.position = LogInUnit.transform.position + new Vector3(0, 0, -10);
+
+            // Highlight the tiles the login player can move to
+            GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
+        }
 
         ChangeState(GameState.SpawningEnemies);
     }
 
-    private void HandleSpawningEnemies() {
+    private void HandleEnemies() {
         
         // Spawn enemies
         
@@ -122,7 +144,33 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     private void DatabaseNotLoaded() {
         Debug.LogError("Database not loaded");
     }
+
+    public void SetLoginPlayer(Character character) {
+        if (character == null) {
+            Debug.LogError("Character is null");
+            return;
+        }
+
+
+// TODO: This is commented out becauseit bugs...
+        // List<Vector2> resetHighlight = ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves;
+        // if (ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0) {
+        //     GridManager.Instance.UnhighlightTiles(
+        //         ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves);
+        // }
+
+        LoginPlayerCharacter = character;
+        ExampleUnitManager.Instance.LogInPlayerUnit =   
+            ExampleUnitManager.Instance.Players.
+                Find(player => player.character == LoginPlayerCharacter);
+
+        // GridManager.Instance.GetMovableTiles(
+        //     ExampleUnitManager.Instance.LogInPlayerUnit, highlight:true);
+        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerCharacter.name + " -";
+    }
 }
+
+
 
 /// <summary>
 /// This is obviously an example and I have no idea what kind of game you're making.
@@ -130,11 +178,12 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 /// </summary>
 [Serializable]
 public enum GameState {
-    Starting = 0,
-    SpawningHeroes = 1,
-    SpawningEnemies = 2,
-    HeroTurn = 3,
-    EnemyTurn = 4,
-    Win = 5,
-    Lose = 6,
+    Loading = 0,
+    Starting = 1,
+    SpawningPlayers = 2,
+    SpawningEnemies = 3,
+    HeroTurn = 4,
+    EnemyTurn = 5,
+    Win = 6,
+    Lose = 7,
 }

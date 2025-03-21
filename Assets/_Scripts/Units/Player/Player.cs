@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Player : BasePlayer {
 
+    public bool isLogInPlayer;
+
+    public List<Vector2> PossibleMoves;
+
     void Awake() {
         transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }

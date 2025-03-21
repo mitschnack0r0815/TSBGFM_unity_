@@ -1,0 +1,54 @@
+:root {
+    color: white;
+    margin: 5px;
+    -unity-font-style: bold;
+
+    --border-width: 2px;
+}
+
+.container {
+    
+}
+
+.bordered-box {
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: white;
+}
+
+.view-box {
+    width: 50px;
+    height: 200px;
+    background-color: #2c3e50;
+}
+
+.control-box {
+    width: 140px;
+    background-color: #2c3e50;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.main-btn {
+    width: 90%;
+    height: 20px;
+    background-color: #2c3e50;
+    border-radius: 5px;
+}
+
+.main-btn:hover {
+    background-color:white;
+    scale: 1.1;
+    transition: 0.5s;
+    color : black;
+    border-width: var(--border-width);
+}
+
+.player-dropdown {
+    width: 90%;
+    height: 30px;
+    background-color: #2c3e50;
+    border-radius: 5px;
+    font-size: 10px;
+}

@@ -11,6 +11,8 @@ public class BaseUnit : MonoBehaviour {
     public Tile OccupiedTile;
     public Faction Faction;
 
+    public Character character;
+
     public void Update()
     {
         

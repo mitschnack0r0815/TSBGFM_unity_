@@ -9,6 +9,8 @@ using Unity.VisualScripting;
 
 public class DatabaseManager : StaticInstance<DatabaseManager>
 {
+    [SerializeField]
+    public bool OfflineMode = false;
     private string apiUrl = "http://localhost:3001/api/";
 
     // Public property to store the characters array
@@ -21,7 +23,20 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
 
     void Start()
     {
-        StartCoroutine(InitializeGame());
+        if (OfflineMode)
+        {
+            // If in offline mode, load the characters from the resource system
+            Characters = HandleJsonResponseCharacters(TestData.chars);
+            GameStatus = HandleJsonResponseGame(TestData.gameStatus);
+            IsDataLoaded = true;
+        }
+        else
+        {
+            // If not in offline mode, start the initialization coroutine
+            StartCoroutine(InitializeGame());
+        }
+
+
     }
 
     IEnumerator InitializeGame()

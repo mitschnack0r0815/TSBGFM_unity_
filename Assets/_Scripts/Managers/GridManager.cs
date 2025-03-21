@@ -38,9 +38,11 @@ public class GridManager : MonoBehaviour {
                         break;
                     case TileType.Water:
                         _tilePrefab = _tileWaterPrefab;
+                        yPos -= 0.25f;
                         break;
                     case TileType.Mountain:
                         _tilePrefab = _tileMountainPrefab;
+                        yPos += 0.2f;
                         break;
                     default:
                         _tilePrefab = _tileEmptyPrefab;
@@ -60,7 +62,10 @@ public class GridManager : MonoBehaviour {
         return null;
     }    
 
-    public List<Vector2> GetMovableTiles(Vector2 pos) {
+    public List<Vector2> GetMovableTiles(BaseUnit unit, bool highlight = false) {
+
+        var pos = new Vector2(  unit.character.position.x, 
+                                unit.character.position.y);
         var tile = GetTileAtPosition(pos);
         if (tile == null) return null;
         var movableTiles = new List<Vector2>();
@@ -81,15 +86,33 @@ public class GridManager : MonoBehaviour {
                 movableTiles.Add(newPos);
             }
         }
+
+        if (highlight) {
+            if (unit is Player player) {
+                if (player.PossibleMoves.Count > 0) {
+                    UnhighlightTiles(player.PossibleMoves);
+                }
+                player.PossibleMoves = movableTiles;
+            }
+            HighlightTiles(movableTiles);
+        }
+
         return movableTiles;
     }
 
-    public void HighlightMovableTiles(List<Vector2> tilePositions) {
+    public void HighlightTiles(List<Vector2> tilePositions) {
         foreach (var tilePos in tilePositions) {
             var tile = GetTileAtPosition(tilePos);
             if (tile == null) continue;
             tile.MovableHighlight.SetActive(true);
-            tile.transform.position += new Vector3(0, 0.1f, 0);
+            tile.transform.position += new Vector3(0, 0.05f, 0);
+        }
+    }
+
+    public void UnhighlightTiles(List<Vector2> tilePositions) {
+        foreach (var tile in _tiles.Values) {
+            tile.MovableHighlight.SetActive(false);
+            tile.transform.position -= new Vector3(0, 0.05f, 0);
         }
     }
 }
