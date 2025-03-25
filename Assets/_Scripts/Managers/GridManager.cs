@@ -87,10 +87,8 @@ public class GridManager : MonoBehaviour {
         }
 
         if (highlight) {
+            UnhighlightTiles();
             if (unit is Player player) {
-                if (player.PossibleMoves.Count > 0) {
-                    UnhighlightTiles(player.PossibleMoves);
-                }
                 player.PossibleMoves = movableTiles;
             }
             HighlightTiles(movableTiles);
@@ -108,13 +106,23 @@ public class GridManager : MonoBehaviour {
         }
     }
 
-    public void UnhighlightTiles(List<Vector2> tilePositions) {
-        foreach (var tilePos in tilePositions) {
-            var tile = GetTileAtPosition(tilePos);
-            if (tile == null) continue;
-            tile.MovableHighlight.SetActive(false);
-            tile.transform.position -= new Vector3(0, 0.05f, 0);
+    public void UnhighlightTiles() {
+        foreach (var tilePair in _tiles) {
+            var tile = tilePair.Value;
+            if (tile.MovableHighlight != null) {
+                    if (tile.MovableHighlight.activeSelf == true) {
+                    tile.transform.position -= new Vector3(0, 0.05f, 0);
+                    tile.MovableHighlight.SetActive(false);
+                }
+            }
         }
+
+        // foreach (var tilePos in tilePositions) {
+        //     var tile = GetTileAtPosition(tilePos);
+        //     if (tile == null) continue;
+        //     tile.MovableHighlight.SetActive(false);
+        //     tile.transform.position -= new Vector3(0, 0.05f, 0);
+        // }
     }
 }
 
