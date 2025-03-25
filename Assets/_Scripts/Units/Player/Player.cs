@@ -3,19 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : BasePlayer {
-
     public bool isLogInPlayer;
 
     public List<Vector2> PossibleMoves;
 
-    void Awake() {
-        transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+    protected override void Awake()
+    {
+        // Call the base class's Awake method
+        base.Awake();
+
+        // Additional logic for PlayerUnit
+        Debug.Log("PlayerUnit Awake called.");
     }
 
     void Start() {
-        // Example usage of a static system
+        transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
     }
-    
+
+    void Update()
+    {
+        if (isLogInPlayer) {
+            // Set the camera to the login player
+            ExampleGameManager.Instance.Cam.transform.position = 
+                ExampleUnitManager.Instance.LogInPlayerUnit.
+                transform.position + new Vector3(0, 0, -10);
+        }
+    }
+
     public override void ExecuteMove() {
         // Perform tarodev specific animation, do damage, move etc.
         // You'll obviously need to accept the move specifics as an argument to this function. 

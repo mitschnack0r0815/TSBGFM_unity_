@@ -27,17 +27,11 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
         var spawnedUnit = (Player) Instantiate(playerUnit);
 
-        if (ExampleGameManager.Instance.LoginPlayerCharacter != null && 
-            character.name == ExampleGameManager.Instance.LoginPlayerCharacter.name) 
-        {
-            LogInPlayerUnit = spawnedUnit;
-        }
-
         // Set the position of the unit
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(character.position.x, character.position.y));
         spawnTile.SetUnit(spawnedUnit);
 
-        spawnedUnit.character = character;
+        spawnedUnit.Character = character;
         spawnedUnit.name = "Unit_" + character.name;
         Players.Add(spawnedUnit);
 
@@ -50,7 +44,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
     }
 
     public Player GetPlayer(string name) {
-        return Players.Find(player => player.character.name == name);
+        return Players.Find(player => player.Character.name == name);
     }
 }
 

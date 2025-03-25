@@ -12,7 +12,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     public static event Action<GameState> OnBeforeStateChanged;
     public static event Action<GameState> OnAfterStateChanged;
 
-    [SerializeField] private Transform _cam;
+    [SerializeField] public Transform Cam;
 
     public GameState State { get; private set; }
 
@@ -84,8 +84,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     private void HandleStarting() {
         if (!_dbManager.IsDataLoaded) DatabaseNotLoaded();
 
-        // For now, set the first character to the login player
-        SetLoginPlayer(_dbManager.Characters[0]);        
+        
 
         ChangeState(GameState.SpawningPlayers);
     }
@@ -99,6 +98,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
         if (ExampleUnitManager.Instance.Players.Count > 0) {
             Debug.Log("Players already spawned");
+
             return;
         } else {
             Debug.LogWarning("Spawning players");
@@ -106,22 +106,21 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             // Spawn the players
             ExampleUnitManager.Instance.SpawnPlayers(_dbManager.GameStatus.chars);
 
+            // For now, set the first character to the login player
+            SetLoginPlayerCharacter(_dbManager.Characters[0]);
+
+            Debug.Log("Login player: " + ExampleUnitManager.Instance.LogInPlayerUnit.Character.name);
+            ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayer = true;
+
             // Set the player dropdown
             var dropdown = MainMenuScreen.Instance.PlayerDropdown;
             dropdown.choices = ExampleUnitManager.Instance.Players.ConvertAll(u => u.name);
-            dropdown.value = dropdown.choices[0];
+            dropdown.value = "Choose Player";
             MainMenuScreen.OnPlayerDropdownChoose += () => {
                 Debug.Log("Player dropdown changed: " + dropdown.value);
                 string playerName = dropdown.value.Replace("Unit_", "");
-                SetLoginPlayer(ExampleUnitManager.Instance.GetPlayer(playerName).character);
+                SetLoginPlayerCharacter(ExampleUnitManager.Instance.GetPlayer(playerName).Character);
             };
-
-            // Set the camera to the login player
-            var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
-            _cam.transform.position = LogInUnit.transform.position + new Vector3(0, 0, -10);
-
-            // Highlight the tiles the login player can move to
-            GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
         }
 
         ChangeState(GameState.SpawningEnemies);
@@ -145,24 +144,32 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         Debug.LogError("Database not loaded");
     }
 
-    public void SetLoginPlayer(Character character) {
+    public void SetLoginPlayerCharacter(Character character) {
         if (character == null) {
             Debug.LogError("Character is null");
             return;
         }
 
+        LoginPlayerCharacter = character;
+        if (LoginPlayerCharacter != null) 
+        {
+            ExampleUnitManager.Instance.LogInPlayerUnit = ExampleUnitManager.Instance.
+                GetPlayer(LoginPlayerCharacter.name);
+        }
 
-// TODO: This is commented out becauseit bugs...
+        ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayer = true;
+
+        // Highlight the tiles the login player can move to
+        var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
+        GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
+
+// TODO: This is commented out because it bugs...
         // List<Vector2> resetHighlight = ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves;
         // if (ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0) {
         //     GridManager.Instance.UnhighlightTiles(
         //         ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves);
         // }
-
-        LoginPlayerCharacter = character;
-        ExampleUnitManager.Instance.LogInPlayerUnit =   
-            ExampleUnitManager.Instance.Players.
-                Find(player => player.character == LoginPlayerCharacter);
+        
 
         // GridManager.Instance.GetMovableTiles(
         //     ExampleUnitManager.Instance.LogInPlayerUnit, highlight:true);

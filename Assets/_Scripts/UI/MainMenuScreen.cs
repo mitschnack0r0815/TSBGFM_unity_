@@ -17,6 +17,8 @@ public class MainMenuScreen : MonoBehaviour
 
     public static event Action OnTestBtnClicked;
 
+    public static event Action OnEndTurnBtnClicked;
+
 
 
     private void Start()
@@ -48,6 +50,34 @@ public class MainMenuScreen : MonoBehaviour
    
         var container = CreateElement<VisualElement>("container");
 
+        CreateTestMenu(container);
+
+        CreateMenu(container);
+
+        root.Add(container);
+
+        yield break;
+    }
+
+    private void CreateMenu(VisualElement ele) {
+        var container = ele;
+
+        var controlbox = CreateElement<VisualElement>("control-box","bordered-box");
+        container.Add(controlbox);
+
+        var titleLable = CreateElement<Label>("main-lable");
+        titleLable.text = "Game Menu";
+        controlbox.Add(titleLable);
+
+        var endTurnBtn = CreateElement<Button>("main-btn");
+        endTurnBtn.clicked += () => Debug.Log("endTurnBtn clicked");
+        endTurnBtn.clicked += OnEndTurnBtnClicked;
+        endTurnBtn.text = "End Turn";
+        controlbox.Add(endTurnBtn);
+    }
+
+    private void CreateTestMenu(VisualElement ele) {
+        var container = ele;
         // var viewBox = CreateElement<VisualElement>("view-box");
         // container.Add(viewBox);
 
@@ -55,7 +85,7 @@ public class MainMenuScreen : MonoBehaviour
         container.Add(controlbox);
 
         var titleLable = CreateElement<Label>("main-lable");
-        titleLable.text = "Main Menu";
+        titleLable.text = "Test Menu";
         controlbox.Add(titleLable);
 
         CurrPlayerLable = CreateElement<Label>("player-info");
@@ -92,10 +122,6 @@ public class MainMenuScreen : MonoBehaviour
         PlayerDropdown = CreateElement<DropdownField>("player-dropdown");
         PlayerDropdown.RegisterValueChangedCallback(evt => OnPlayerDropdownChoose?.Invoke());
         controlbox.Add(PlayerDropdown);
-
-        root.Add(container);
-
-        yield break;
     }
 
     T CreateElement<T>(params string[] classNames) where T : VisualElement, new()

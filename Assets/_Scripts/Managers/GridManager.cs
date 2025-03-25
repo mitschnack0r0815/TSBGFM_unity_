@@ -35,6 +35,7 @@ public class GridManager : MonoBehaviour {
                 switch ((TileType)board.map[x][y]) {
                     case TileType.Land:
                         _tilePrefab = _tileLandPrefab;
+                        // yPos += UnityEngine.Random.Range(0.0f, 0.1f);
                         break;
                     case TileType.Water:
                         _tilePrefab = _tileWaterPrefab;
@@ -42,7 +43,7 @@ public class GridManager : MonoBehaviour {
                         break;
                     case TileType.Mountain:
                         _tilePrefab = _tileMountainPrefab;
-                        yPos += 0.2f;
+                        yPos += UnityEngine.Random.Range(0.1f, 0.2f);
                         break;
                     default:
                         _tilePrefab = _tileEmptyPrefab;
@@ -51,6 +52,7 @@ public class GridManager : MonoBehaviour {
                 if (_tilePrefab) {
                     var spawnedTile = Instantiate(_tilePrefab, new Vector3(xPos, yPos), Quaternion.identity);
                     spawnedTile.name = $"Tile {x} {y}";
+                    spawnedTile.pos = new Vector2(x, y);
                     _tiles[new Vector2(x, y)] = spawnedTile;
                 }
             }
@@ -64,14 +66,26 @@ public class GridManager : MonoBehaviour {
 
     public List<Vector2> GetMovableTiles(BaseUnit unit, bool highlight = false) {
 
-        var pos = new Vector2(  unit.character.position.x, 
-                                unit.character.position.y);
+        var pos = new Vector2(  unit.Character.position.x, 
+                                unit.Character.position.y);
         var tile = GetTileAtPosition(pos);
         if (tile == null) return null;
         var movableTiles = new List<Vector2>();
         var x = (int)pos.x;
         var y = (int)pos.y;
-        var directions = new Vector2[] { 
+
+        Vector2[] directions;
+        if (x % 2 != 0) {
+            directions = new[] { 
+                new Vector2(1, 0),
+                new Vector2(-1, 0),
+                new Vector2(0, 1),
+                new Vector2(0, -1),
+                new Vector2(1, 1),
+                new Vector2(1, -1)
+            };
+        } else {
+            directions = new[] { 
                 new Vector2(1, 0),
                 new Vector2(-1, 0),
                 new Vector2(0, 1),
@@ -79,6 +93,8 @@ public class GridManager : MonoBehaviour {
                 new Vector2(-1, 1),
                 new Vector2(-1, -1)
             };
+        }
+
         foreach (var dir in directions) {
             var newPos = pos + dir;
             var newTile = GetTileAtPosition(newPos);
@@ -110,7 +126,9 @@ public class GridManager : MonoBehaviour {
     }
 
     public void UnhighlightTiles(List<Vector2> tilePositions) {
-        foreach (var tile in _tiles.Values) {
+        foreach (var tilePos in tilePositions) {
+            var tile = GetTileAtPosition(tilePos);
+            if (tile == null) continue;
             tile.MovableHighlight.SetActive(false);
             tile.transform.position -= new Vector3(0, 0.05f, 0);
         }

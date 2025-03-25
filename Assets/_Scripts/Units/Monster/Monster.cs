@@ -4,7 +4,14 @@ using UnityEngine;
 
 public class Monster : BaseMonster {
 
-    void Awake() {
+    protected override void Awake()
+    {
+        // Call the base class's Awake method
+        base.Awake();
+
+        // Additional logic for PlayerUnit
+        Debug.Log("PlayerUnit Awake called.");
+        
         transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }
 

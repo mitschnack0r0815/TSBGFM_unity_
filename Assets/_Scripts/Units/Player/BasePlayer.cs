@@ -3,7 +3,10 @@ using UnityEngine;
 public abstract class BasePlayer : BaseUnit {
     private bool _canMove;
 
-    private void Awake() => ExampleGameManager.OnBeforeStateChanged += OnStateChanged;
+    protected override void Awake() {
+        base.Awake();
+        ExampleGameManager.OnBeforeStateChanged += OnStateChanged;
+    }
 
     private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
 

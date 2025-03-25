@@ -11,14 +11,26 @@ public class BaseUnit : MonoBehaviour {
     public Tile OccupiedTile;
     public Faction Faction;
 
-    public Character character;
+    public Character Character;
 
-    public void Update()
+    public Vector2 Position;
+
+    Animator m_Animator;
+
+    private bool _moved = false;
+
+    protected virtual void Awake()
     {
-        
+        // Get the Animator attached to the GameObject you are intending to animate.
+        m_Animator = GetComponentInChildren<Animator>();
+
+        if (m_Animator == null)
+        {
+            Debug.LogError("Animator component not found on BaseUnit or its children.");
+        }
     }
 
-    public void moveUnit(Tile targetTile)
+    public void MoveUnit(Tile targetTile)
     {
         if (targetTile == null)
         {
@@ -26,8 +38,22 @@ public class BaseUnit : MonoBehaviour {
             return;
         }
 
-        transform.Translate(targetTile.transform.position - transform.position);
+        //transform.Translate(targetTile.transform.position - transform.position);
 
         targetTile.SetUnit(this);
+    }
+
+    public void ToogleMoved()
+    {
+        if (_moved)
+        {
+            _moved = false;
+            m_Animator.SetBool("Moved", false);
+        }
+        else
+        {
+            _moved = true;
+            m_Animator.SetBool("Moved", true);
+        }
     }
 }
