@@ -74,26 +74,9 @@ public class GridManager : MonoBehaviour {
         var x = (int)pos.x;
         var y = (int)pos.y;
 
-        Vector2[] directions;
-        if (x % 2 != 0) {
-            directions = new[] { 
-                new Vector2(1, 0),
-                new Vector2(-1, 0),
-                new Vector2(0, 1),
-                new Vector2(0, -1),
-                new Vector2(1, 1),
-                new Vector2(1, -1)
-            };
-        } else {
-            directions = new[] { 
-                new Vector2(1, 0),
-                new Vector2(-1, 0),
-                new Vector2(0, 1),
-                new Vector2(0, -1),
-                new Vector2(-1, 1),
-                new Vector2(-1, -1)
-            };
-        }
+        var directions = x % 2 != 0 ? 
+            new[] { new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
+            new[] { new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
 
         foreach (var dir in directions) {
             var newPos = pos + dir;
