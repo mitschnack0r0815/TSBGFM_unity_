@@ -7,14 +7,8 @@ using UnityEngine;
 /// Things like taking damage, dying, animation triggers etc
 /// </summary>
 public class BaseUnit : MonoBehaviour {
-    public string UnitName;
     public Tile OccupiedTile;
-    public Faction Faction;
-
     public Character Character;
-
-    public Vector2 Position;
-
     Animator m_Animator;
 
     private bool _moved = false;
@@ -55,5 +49,29 @@ public class BaseUnit : MonoBehaviour {
             _moved = true;
             m_Animator.SetBool("Moved", true);
         }
+    }
+
+    public void AttackUnit(BaseUnit targetUnit)
+    {
+        if (targetUnit == null)
+        {
+            Debug.LogError("Target unit is null");
+            return;
+        }
+
+        // Perform attack logic here, e.g., reduce target unit's health
+        // Example: targetUnit.TakeDamage(attackPower);
+    }
+
+    public void RetreatUnit()
+    {
+        // Perform retreat logic here, e.g., move the unit off the battlefield or to a safe location
+        // Example: transform.position = retreatPosition;
+    }
+
+    public void WaitUnit()
+    {
+        // Perform wait logic here, e.g., disable the unit or make it inactive
+        // Example: gameObject.SetActive(false);
     }
 }

@@ -19,7 +19,11 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
     Player SpawnPlayer(Character character) {
 
-        var playerUnit = ResourceSystem.Instance.Units.Find(u => u.Faction == Faction.Player).UnitPrefab;
+        /* TODO: This is a bit of a hack, but I don't want to make a new prefab for each unit type.
+         * Ideally, you would have a prefab for each unit type and use the scriptable object to set the stats
+         * and other properties. But this is an example so I'm keeping it simple.
+         */
+        var playerUnit = ResourceSystem.Instance.Units.Find(unit => unit != null).UnitPrefab;
         if (playerUnit == null) {
             Debug.LogError("Player unit not found in the resource system");
             return null;

@@ -160,6 +160,7 @@ public class GameStatus
     public string _id;
     public int gameNumber;
     public Board board;
+    public Player[] players;
     public Character[] chars;
     public int currentTurn;
     public DateTime createdAt;
@@ -177,6 +178,39 @@ public class Board
 }
 
 [Serializable]
+public class Player
+/// <summary>
+/// Represents a database entry for a character group controlled by the player.
+/// </summary>
+/// <remarks>
+/// This class contains information about the group, including its ID, name, faction, 
+/// list of characters, initiative value, extra dice, and version number.
+/// </remarks>
+/// <param name="_id">The unique identifier for the database entry</param>
+/// <param name="name">The name of the player</param>
+/// <param name="faction">The faction to which the character group belong.</param>
+/// <param name="charList">The list of characters in the group/faction</param>
+/// <param name="initiative">The initiative value</param>
+/// <param name="extraDice">The number of extra dice available</param>
+/// <param name="__v">The version number of the database entry</param>
+{
+    public string _id;
+    public string playerName;
+    public string faction; 
+    public Char[] charList;
+    public int initiative;
+    public int extraDice;
+    public int __v;
+}
+
+[Serializable]
+public class Char
+{
+    public string name;
+    public string amount;
+}
+
+[Serializable]
 public class CharacterList
 {
     public Character[] Characters;
@@ -187,6 +221,7 @@ public class Character
 {
     public string _id;
     public string name;
+    public string faction; /* will be a unique player */
     public int life;
     public int armor;
     public Weapons weapons;

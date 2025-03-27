@@ -18,6 +18,7 @@ public class GridManager : MonoBehaviour {
  
     public void GenerateGrid(Board board) {
         _tiles = new Dictionary<Vector2, Tile>();
+        Transform parentTransform = new GameObject("Tiles").transform;
 
         for (int x = 0; x < board.x; x++) {
             /* Start at 1 to avoid overlapping tiles */
@@ -50,7 +51,7 @@ public class GridManager : MonoBehaviour {
                         break;
                 }
                 if (_tilePrefab) {
-                    var spawnedTile = Instantiate(_tilePrefab, new Vector3(xPos, yPos), Quaternion.identity);
+                    var spawnedTile = Instantiate(_tilePrefab, new Vector3(xPos, yPos), Quaternion.identity, parentTransform);
                     spawnedTile.name = $"Tile {x} {y}";
                     spawnedTile.pos = new Vector2(x, y);
                     _tiles[new Vector2(x, y)] = spawnedTile;
@@ -71,6 +72,8 @@ public class GridManager : MonoBehaviour {
         var tile = GetTileAtPosition(pos);
         if (tile == null) return null;
         var movableTiles = new List<Vector2>();
+        // Add the current tile to the list of movable tiles
+        movableTiles.Add(pos);
         var x = (int)pos.x;
         var y = (int)pos.y;
 
