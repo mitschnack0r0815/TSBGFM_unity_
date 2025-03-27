@@ -54,7 +54,7 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
     IEnumerator PostInitGame()
     {
         // Create JSON body
-        string jsonBody = "{\"Player1\": \"Elon\", \"Player2\": \"Donald\"}";
+        string jsonBody = "{\"Player1\": \"Player A\", \"Player2\": \"Player B\"}";
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
 
         // Create request
@@ -161,6 +161,7 @@ public class GameStatus
     public int gameNumber;
     public Board board;
     public Character[] chars;
+    public int currentTurn;
     public DateTime createdAt;
     public int __v;
 }
@@ -188,7 +189,8 @@ public class Character
     public string name;
     public int life;
     public int armor;
-    public Weapon weapon;
+    public Weapons weapons;
+    public int moveDistance;
     public BoardPos position;
     public int __v;
 }
@@ -201,11 +203,21 @@ public class BoardPos
 }
 
 [Serializable]
+public class Weapons
+{
+    public Weapon first;
+    public Weapon second;
+}
+
+[Serializable]
 public class Weapon
 {
     public string _id;
     public string name;
-    public string dice;
-    public int initiative;
-    public string type;
+    public int strength;
+    public int range;
+    public int attacks;
+    public int attackPower;
+    public int critPower;
+
 }

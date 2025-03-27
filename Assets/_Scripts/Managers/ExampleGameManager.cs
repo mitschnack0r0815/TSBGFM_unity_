@@ -47,7 +47,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             case GameState.SpawningEnemies:
                 // HandleSpawningEnemies();
                 break;
-            case GameState.HeroTurn:
+            case GameState.PlayerTurn:
                 // HandleHeroTurn();
                 break;
             case GameState.EnemyTurn:
@@ -130,7 +130,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         
         // Spawn enemies
         
-        ChangeState(GameState.HeroTurn);
+        ChangeState(GameState.PlayerTurn);
     }
 
     private void HandleHeroTurn() {
@@ -189,7 +189,7 @@ public enum GameState {
     Starting = 1,
     SpawningPlayers = 2,
     SpawningEnemies = 3,
-    HeroTurn = 4,
+    PlayerTurn = 4,
     EnemyTurn = 5,
     Win = 6,
     Lose = 7,

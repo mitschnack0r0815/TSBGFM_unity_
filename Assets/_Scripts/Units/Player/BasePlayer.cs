@@ -11,12 +11,12 @@ public abstract class BasePlayer : BaseUnit {
     private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
 
     private void OnStateChanged(GameState newState) {
-        if (newState == GameState.HeroTurn) _canMove = true;
+        if (newState == GameState.PlayerTurn) _canMove = true;
     }
 
     private void OnMouseDown() {
         // Only allow interaction when it's the hero turn
-        if (ExampleGameManager.Instance.State != GameState.HeroTurn) return;
+        if (ExampleGameManager.Instance.State != GameState.PlayerTurn) return;
 
         // Don't move if we've already moved
         if (!_canMove) return;
