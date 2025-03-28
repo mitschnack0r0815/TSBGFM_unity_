@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class BaseUnit : MonoBehaviour {
     public Tile OccupiedTile;
-    public Character Character;
+    public Unit Unit;
     Animator m_Animator;
 
     private bool _moved = false;

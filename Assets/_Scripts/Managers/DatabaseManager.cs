@@ -14,7 +14,7 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
     private string apiUrl = "http://localhost:3001/api/";
 
     // Public property to store the characters array
-    public Character[] Characters { get; private set; }
+    // public Character[] Characters { get; private set; }
 
     public GameStatus GameStatus { get; private set; }
 
@@ -26,7 +26,7 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
         if (OfflineMode)
         {
             // If in offline mode, load the characters from the resource system
-            Characters = HandleJsonResponseCharacters(TestData.chars);
+            // Characters = HandleJsonResponseCharacters(TestData.chars);
             GameStatus = HandleJsonResponseGame(TestData.gameStatus);
             IsDataLoaded = true;
         }
@@ -42,7 +42,7 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
     IEnumerator InitializeGame()
     {
         // Wait for GetCharacters coroutine to complete
-        yield return StartCoroutine(GetCharacters());
+        // yield return StartCoroutine(GetCharacters());
 
         // Wait for PostInitGame coroutine to complete
         yield return StartCoroutine(PostInitGame());
@@ -54,7 +54,7 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
     IEnumerator PostInitGame()
     {
         // Create JSON body
-        string jsonBody = "{\"Player1\": \"Player A\", \"Player2\": \"Player B\"}";
+        string jsonBody = "{\"Player1\": \"Donald\", \"Player2\": \"Elon\"}";
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
 
         // Create request
@@ -70,6 +70,7 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
             {
                 Debug.Log("DatabaseManager - PostInitGame\nResponse: " + request.downloadHandler.text);
                 GameStatus = HandleJsonResponseGame(request.downloadHandler.text);
+                Debug.Log("GameStatus: " + GameStatus.gameNumber);
             }
             else
             {
@@ -124,34 +125,34 @@ public class DatabaseManager : StaticInstance<DatabaseManager>
         return gameStatus;
     }
 
-    IEnumerator GetCharacters()
-    {
-        using (UnityWebRequest request = UnityWebRequest.Get(apiUrl + "getCharacters"))
-        {
-            yield return request.SendWebRequest();
+    // IEnumerator GetCharacters()
+    // {
+    //     using (UnityWebRequest request = UnityWebRequest.Get(apiUrl + "getCharacters"))
+    //     {
+    //         yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("DatabaseManager - GetCharacters\nServer Response: " + request.downloadHandler.text);
+    //         if (request.result == UnityWebRequest.Result.Success)
+    //         {
+    //             Debug.Log("DatabaseManager - GetCharacters\nServer Response: " + request.downloadHandler.text);
 
-                // Parse the JSON response
-                Characters = HandleJsonResponseCharacters(request.downloadHandler.text);
-            }
-            else
-            {
-                Debug.LogError("Request Failed: " + request.error);
-            }
-        }
-    }
+    //             // Parse the JSON response
+    //             Characters = HandleJsonResponseCharacters(request.downloadHandler.text);
+    //         }
+    //         else
+    //         {
+    //             Debug.LogError("Request Failed: " + request.error);
+    //         }
+    //     }
+    // }
 
-    Character[] HandleJsonResponseCharacters(string json)
-    {
-        // Wrap the JSON array in a class to deserialize it
-        string wrappedJson = "{\"Characters\":" + json + "}";
-        CharacterList characterList = JsonUtility.FromJson<CharacterList>(wrappedJson);
+    // Character[] HandleJsonResponseCharacters(string json)
+    // {
+    //     // Wrap the JSON array in a class to deserialize it
+    //     string wrappedJson = "{\"Characters\":" + json + "}";
+    //     CharacterList characterList = JsonUtility.FromJson<CharacterList>(wrappedJson);
 
-        return characterList.Characters;
-    }
+    //     return characterList.Characters;
+    // }
 }
 
 [Serializable]
@@ -161,8 +162,8 @@ public class GameStatus
     public int gameNumber;
     public Board board;
     public Player[] players;
-    public Character[] chars;
     public int currentTurn;
+    public string[] turnList;
     public DateTime createdAt;
     public int __v;
 }
@@ -195,31 +196,20 @@ public class Player
 /// <param name="__v">The version number of the database entry</param>
 {
     public string _id;
+    public int id;
     public string playerName;
     public string faction; 
-    public Char[] charList;
+    public Unit[] units;
     public int initiative;
     public int extraDice;
     public int __v;
 }
 
 [Serializable]
-public class Char
-{
-    public string name;
-    public string amount;
-}
-
-[Serializable]
-public class CharacterList
-{
-    public Character[] Characters;
-}
-
-[Serializable]
-public class Character
+public class Unit
 {
     public string _id;
+    public int id;
     public string name;
     public string faction; /* will be a unique player */
     public int life;

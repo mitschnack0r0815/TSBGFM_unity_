@@ -38,8 +38,8 @@ public class Tile : MonoBehaviour {
                 ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Contains(this.pos)) 
             {
                 ExampleUnitManager.Instance.LogInPlayerUnit.MoveUnit(this);
-                ExampleUnitManager.Instance.LogInPlayerUnit.Character.position.x = (int)this.pos.x;
-                ExampleUnitManager.Instance.LogInPlayerUnit.Character.position.y = (int)this.pos.y;
+                ExampleUnitManager.Instance.LogInPlayerUnit.Unit.position.x = (int)this.pos.x;
+                ExampleUnitManager.Instance.LogInPlayerUnit.Unit.position.y = (int)this.pos.y;
             }
         }
     }

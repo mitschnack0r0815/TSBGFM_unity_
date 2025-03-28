@@ -67,8 +67,8 @@ public class GridManager : MonoBehaviour {
 
     public List<Vector2> GetMovableTiles(BaseUnit unit, bool highlight = false) {
 
-        var pos = new Vector2(  unit.Character.position.x, 
-                                unit.Character.position.y);
+        var pos = new Vector2(  unit.Unit.position.x, 
+                                unit.Unit.position.y);
         var tile = GetTileAtPosition(pos);
         if (tile == null) return null;
         var movableTiles = new List<Vector2>();

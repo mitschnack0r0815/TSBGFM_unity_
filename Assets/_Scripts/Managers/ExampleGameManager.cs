@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Android;
+using System.Linq;
 
 /// <summary>
 /// Nice, easy to understand enum-based game manager. For larger and more complex games, look into
@@ -16,7 +17,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
     public GameState State { get; private set; }
 
-    public Character LoginPlayerCharacter { get; set; }
+    public Unit LoginPlayerUnit { get; set; }
 
     private DatabaseManager _dbManager;
 
@@ -96,7 +97,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             return;
         }
 
-        if (ExampleUnitManager.Instance.Players.Count > 0) {
+        if (ExampleUnitManager.Instance.PlayerUnits.Count > 0) {
             Debug.Log("Players already spawned");
 
             return;
@@ -104,22 +105,23 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             Debug.LogWarning("Spawning players");
 
             // Spawn the players
-            ExampleUnitManager.Instance.SpawnPlayers(_dbManager.GameStatus.chars);
+            ExampleUnitManager.Instance.SpawnPlayerUnits(_dbManager.GameStatus.players);
 
             // For now, set the first character to the login player
-            SetLoginPlayerCharacter(_dbManager.Characters[0]);
+            SetLoginPlayerUnit(_dbManager.GameStatus.players[0].units[0]);
 
-            Debug.Log("Login player: " + ExampleUnitManager.Instance.LogInPlayerUnit.Character.name);
-            ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayer = true;
+            Debug.Log("Login player: " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.name);
+            ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayerUnit = true;
 
             // Set the player dropdown
             var dropdown = MainMenuScreen.Instance.PlayerDropdown;
-            dropdown.choices = ExampleUnitManager.Instance.Players.ConvertAll(u => u.name);
+            var playerNameList = _dbManager.GameStatus.players.Select(u => u.playerName).ToList();
+            dropdown.choices = playerNameList;
             dropdown.value = "Choose Player";
             MainMenuScreen.OnPlayerDropdownChoose += () => {
                 Debug.Log("Player dropdown changed: " + dropdown.value);
-                string playerName = dropdown.value.Replace("Unit_", "");
-                SetLoginPlayerCharacter(ExampleUnitManager.Instance.GetPlayer(playerName).Character);
+
+                // SetLoginPlayerUnit(ExampleUnitManager.Instance.GetPlayer(unitId).Unit);
             };
         }
 
@@ -144,20 +146,20 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         Debug.LogError("Database not loaded");
     }
 
-    public void SetLoginPlayerCharacter(Character character) {
-        if (character == null) {
-            Debug.LogError("Character is null");
+    public void SetLoginPlayerUnit(Unit unit) {
+        if (unit == null) {
+            Debug.LogError("Unit is null");
             return;
         }
 
-        LoginPlayerCharacter = character;
-        if (LoginPlayerCharacter != null) 
+        LoginPlayerUnit = unit;
+        if (LoginPlayerUnit != null) 
         {
             ExampleUnitManager.Instance.LogInPlayerUnit = ExampleUnitManager.Instance.
-                GetPlayer(LoginPlayerCharacter.name);
+                GetPlayerUnit(LoginPlayerUnit.id);
         }
 
-        ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayer = true;
+        ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayerUnit = true;
 
         // Highlight the tiles the login player can move to
         var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
@@ -173,7 +175,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
         // GridManager.Instance.GetMovableTiles(
         //     ExampleUnitManager.Instance.LogInPlayerUnit, highlight:true);
-        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerCharacter.name + " -";
+        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerUnit.name + " -";
     }
 }
 

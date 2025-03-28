@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerUnit : BaseUnit {
-    public bool isLogInPlayer;
+    public bool isLogInPlayerUnit;
 
     public List<Vector2> PossibleMoves;
 
@@ -22,7 +22,7 @@ public class PlayerUnit : BaseUnit {
 
     void Update()
     {
-        if (isLogInPlayer) {
+        if (isLogInPlayerUnit) {
             // Set the camera to the login player
             ExampleGameManager.Instance.Cam.transform.position = 
                 ExampleUnitManager.Instance.LogInPlayerUnit.
