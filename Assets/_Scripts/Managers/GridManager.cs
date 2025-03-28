@@ -24,7 +24,7 @@ public class GridManager : MonoBehaviour {
             /* Start at 1 to avoid overlapping tiles */
             for (int y = 0; y < board.y; y++) {
                 float xPos = x ;
-                float yPos = y * 0.8f;
+                float yPos = y * 0.74f;
 
                 yPos += 1.0f;
 
@@ -100,21 +100,25 @@ public class GridManager : MonoBehaviour {
         return movableTiles;
     }
 
-    public void HighlightTiles(List<Vector2> tilePositions) {
+    public void HighlightTiles(List<Vector2> tilePositions, bool raiseY = false) {
         foreach (var tilePos in tilePositions) {
             var tile = GetTileAtPosition(tilePos);
             if (tile == null) continue;
             tile.MovableHighlight.SetActive(true);
-            tile.transform.position += new Vector3(0, 0.05f, 0);
+            if (raiseY) {
+                tile.transform.position += new Vector3(0, 0.05f, 0);
+            }
         }
     }
 
-    public void UnhighlightTiles() {
+    public void UnhighlightTiles(bool raiseY = false) {
         foreach (var tilePair in _tiles) {
             var tile = tilePair.Value;
             if (tile.MovableHighlight != null) {
                     if (tile.MovableHighlight.activeSelf == true) {
-                    tile.transform.position -= new Vector3(0, 0.05f, 0);
+                    if (raiseY) {
+                        tile.transform.position -= new Vector3(0, 0.05f, 0);
+                    }
                     tile.MovableHighlight.SetActive(false);
                 }
             }
