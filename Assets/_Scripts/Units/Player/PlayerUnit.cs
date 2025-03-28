@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : BasePlayer {
+public class PlayerUnit : BaseUnit {
     public bool isLogInPlayer;
 
     public List<Vector2> PossibleMoves;

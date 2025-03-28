@@ -13,6 +13,14 @@ public class BaseUnit : MonoBehaviour {
 
     private bool _moved = false;
 
+    private bool _canMove;
+
+    private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
+
+    private void OnStateChanged(GameState newState) {
+        if (newState == GameState.PlayerTurn) _canMove = true;
+    }
+
     protected virtual void Awake()
     {
         // Get the Animator attached to the GameObject you are intending to animate.
@@ -22,6 +30,29 @@ public class BaseUnit : MonoBehaviour {
         {
             Debug.LogError("Animator component not found on BaseUnit or its children.");
         }
+
+        ExampleGameManager.OnBeforeStateChanged += OnStateChanged;
+    }
+
+    private void OnMouseDown() {
+        // Only allow interaction when it's the hero turn
+        if (ExampleGameManager.Instance.State != GameState.PlayerTurn) return;
+
+        // Don't move if we've already moved
+        if (!_canMove) return;
+
+        // Show movement/attack options
+
+        // Eventually either deselect or ExecuteMove(). You could split ExecuteMove into multiple functions
+        // like Move() / Attack() / Dance()
+
+        Debug.Log("Unit clicked");
+    }
+
+    public virtual void ExecuteMove() {
+        // Override this to do some hero-specific logic, then call this base method to clean up the turn
+
+        _canMove = false;
     }
 
     public void MoveUnit(Tile targetTile)

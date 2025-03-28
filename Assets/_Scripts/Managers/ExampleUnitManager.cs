@@ -7,9 +7,9 @@ using System.Collections.Generic;
 /// </summary>
 public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
-    public List<Player> Players = new();
+    public List<PlayerUnit> Players = new();
 
-    public Player LogInPlayerUnit;
+    public PlayerUnit LogInPlayerUnit;
 
     public void SpawnPlayers(Character[] characters) {
         foreach (var character in characters) {
@@ -17,7 +17,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         }
     }
 
-    Player SpawnPlayer(Character character) {
+    PlayerUnit SpawnPlayer(Character character) {
 
         /* TODO: This is a bit of a hack, but I don't want to make a new prefab for each unit type.
          * Ideally, you would have a prefab for each unit type and use the scriptable object to set the stats
@@ -29,7 +29,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
             return null;
         }        
 
-        var spawnedUnit = (Player) Instantiate(playerUnit);
+        var spawnedUnit = (PlayerUnit) Instantiate(playerUnit);
 
         // Set the position of the unit
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(character.position.x, character.position.y));
@@ -47,7 +47,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         return spawnedUnit;
     }
 
-    public Player GetPlayer(string name) {
+    public PlayerUnit GetPlayer(string name) {
         return Players.Find(player => player.Character.name == name);
     }
 }

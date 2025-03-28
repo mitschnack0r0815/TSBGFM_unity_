@@ -91,8 +91,8 @@ public class GridManager : MonoBehaviour {
 
         if (highlight) {
             UnhighlightTiles();
-            if (unit is Player player) {
-                player.PossibleMoves = movableTiles;
+            if (unit is PlayerUnit playerUnit) {
+                playerUnit.PossibleMoves = movableTiles;
             }
             HighlightTiles(movableTiles);
         }
