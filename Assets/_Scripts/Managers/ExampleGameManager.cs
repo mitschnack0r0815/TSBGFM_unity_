@@ -16,7 +16,8 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     [SerializeField] public Transform Cam;
 
     public GameState State { get; private set; }
-    public string LoginPlayer { get; set; } = TestData.loginPlayer;
+    public string LoginPlayerName { get; set; } = TestData.loginPlayer;
+    public Player LoginPlayer { get; set; }
     public Unit LoginPlayerUnit { get; set; }
 
     private DatabaseManager _dbManager;
@@ -83,7 +84,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             dropdown.value = "Choose Player";
             MainMenuScreen.OnPlayerDropdownChoose += () => {
                 Debug.Log("Player dropdown changed: " + dropdown.value);
-                LoginPlayer = dropdown.value;
+                LoginPlayerName = dropdown.value;
                 // SetLoginPlayerUnit(ExampleUnitManager.Instance.GetPlayer(unitId).Unit);
             };
 
@@ -107,7 +108,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         }
 
         // Find the player with the name matching LoginPlayer
-        var loginPlayer = _dbManager.GameStatus.players.FirstOrDefault(p => p.playerName == LoginPlayer);
+        LoginPlayer = _dbManager.GameStatus.players.FirstOrDefault(p => p.playerName == LoginPlayerName);
 
         if (ExampleUnitManager.Instance.PlayerUnits.Count > 0) {
             Debug.Log("HandleUnits: Units already spawned");
@@ -118,8 +119,8 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             ExampleUnitManager.Instance.SpawnPlayerUnits(_dbManager.GameStatus.players);
         }
 
-        if (loginPlayer != null) {
-            SetLoginPlayerUnit(loginPlayer.units[0]);
+        if (LoginPlayer != null) {
+            SetLoginPlayerUnit(LoginPlayer.units[0]);
         } else {
             Debug.LogError("Login player not found");
         }
@@ -134,7 +135,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         // If you're making a turn based game, this could show the turn menu, highlight available units etc
         
 
-        Debug.Log("Player " + LoginPlayer + "'s turn with Unit " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.name +
+        Debug.Log("Player " + LoginPlayerName + "'s turn with Unit " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.name +
             " and ID " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.id);
         // Keep track of how many units need to make a move, once they've all finished, change the state. This could
         // be monitored in the unit manager or the units themselves.
@@ -175,6 +176,34 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         //     ExampleUnitManager.Instance.LogInPlayerUnit, highlight:true);
         MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerUnit.name + " -";
     }
+
+    public void SwitchLoginPlayerUnit(int indexJump) {
+        // dir = -1 for left, 1 for right
+        if (LoginPlayer == null || LoginPlayer.units == null || LoginPlayer.units[0] == null) {
+            Debug.LogError("No units available to switch.");
+            return;
+        }
+
+        int newIndex = -1;
+        for (int i = 0; i < LoginPlayer.units.Length; i++) {
+            if (LoginPlayer.units[i] == LoginPlayerUnit) {
+                // Found the current unit, now switch to the next one
+                newIndex = (i + indexJump) % LoginPlayer.units.Length;
+                if (newIndex < 0) newIndex += LoginPlayer.units.Length; // Wrap around if negative
+                Debug.Log("Switching to unit: " + LoginPlayer.units[newIndex].name);
+                break;
+            }
+        }
+
+        if (newIndex == -1) {
+            Debug.LogError("No unit found to switch to.");
+            return;
+        }
+
+        // Set the new LoginPlayerUnit
+        SetLoginPlayerUnit(LoginPlayer.units[newIndex]);
+    }
+
 }
 
 

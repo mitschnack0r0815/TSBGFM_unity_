@@ -69,6 +69,30 @@ public class MainMenuScreen : MonoBehaviour
         titleLable.text = "Game Menu";
         controlbox.Add(titleLable);
 
+        var btnBoxLabel = CreateElement<Label>("btn-box-label");
+        btnBoxLabel.text = "Switch Unit";
+        controlbox.Add(btnBoxLabel);
+
+        var btnBox = CreateElement<VisualElement>("btn-box");
+        controlbox.Add(btnBox);
+
+        var switchLeftBtn = CreateElement<Button>("btn");
+        switchLeftBtn.text = "<";
+        switchLeftBtn.clicked += () => {
+            Debug.Log("switchLeftBtn clicked");
+            ExampleGameManager.Instance.SwitchLoginPlayerUnit(-1);
+        };
+        btnBox.Add(switchLeftBtn);
+
+        var switchRightBtn = CreateElement<Button>("btn");
+        switchRightBtn.clicked += () => Debug.Log("switchRightBtn clicked");
+        switchRightBtn.text = ">";
+        switchRightBtn.clicked += () => {
+            Debug.Log("switchLeftBtn clicked");
+            ExampleGameManager.Instance.SwitchLoginPlayerUnit(1);
+        };
+        btnBox.Add(switchRightBtn);
+
         var endTurnBtn = CreateElement<Button>("main-btn");
         endTurnBtn.clicked += () => Debug.Log("endTurnBtn clicked");
         endTurnBtn.clicked += OnEndTurnBtnClicked;
