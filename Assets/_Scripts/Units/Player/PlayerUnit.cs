@@ -11,9 +11,6 @@ public class PlayerUnit : BaseUnit {
     {
         // Call the base class's Awake method
         base.Awake();
-
-        // Additional logic for PlayerUnit
-        Debug.Log("PlayerUnit Awake called.");
     }
 
     void Start() {

@@ -16,7 +16,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     [SerializeField] public Transform Cam;
 
     public GameState State { get; private set; }
-
+    public string LoginPlayer { get; set; } = TestData.loginPlayer;
     public Unit LoginPlayerUnit { get; set; }
 
     private DatabaseManager _dbManager;
@@ -31,6 +31,8 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     }
 
     public void ChangeState(GameState newState) {
+        Debug.LogWarning($"New state: {newState}"); 
+
         OnBeforeStateChanged?.Invoke(newState);
 
         State = newState;
@@ -42,14 +44,14 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             case GameState.Starting:
                 HandleStarting();
                 break;
-            case GameState.SpawningPlayers:
-                HandleHeroes();
+            case GameState.SpawningUnits:
+                HandleUnits();
                 break;
-            case GameState.SpawningEnemies:
-                // HandleSpawningEnemies();
+            case GameState.ReplayEnemyTurns:
+                ChangeState(GameState.PlayerTurn);
                 break;
             case GameState.PlayerTurn:
-                // HandleHeroTurn();
+                HandleTurn();
                 break;
             case GameState.EnemyTurn:
                 break;
@@ -62,8 +64,6 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         }
 
         OnAfterStateChanged?.Invoke(newState);
-        
-        Debug.LogWarning($"New state: {newState}");
     }
 
     private IEnumerator HandleLoading() {
@@ -76,7 +76,18 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             MainMenuScreen.Instance.GenerateUI();
             GridManager.Instance.GenerateGrid(_dbManager.GameStatus.board);
 
-            ChangeState(GameState.Starting);            
+            // Set the player dropdown
+            var dropdown = MainMenuScreen.Instance.PlayerDropdown;
+            var playerNameList = _dbManager.GameStatus.players.Select(u => u.playerName).ToList();
+            dropdown.choices = playerNameList;
+            dropdown.value = "Choose Player";
+            MainMenuScreen.OnPlayerDropdownChoose += () => {
+                Debug.Log("Player dropdown changed: " + dropdown.value);
+                LoginPlayer = dropdown.value;
+                // SetLoginPlayerUnit(ExampleUnitManager.Instance.GetPlayer(unitId).Unit);
+            };
+
+            ChangeState(GameState.Starting);  
         } else {
             Debug.LogError("DatabaseManager not found");
         }
@@ -85,59 +96,46 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     private void HandleStarting() {
         if (!_dbManager.IsDataLoaded) DatabaseNotLoaded();
 
-        
-
-        ChangeState(GameState.SpawningPlayers);
+        ChangeState(GameState.SpawningUnits);
     }
 
 
-    private void HandleHeroes() {
+    private void HandleUnits() {
         if (!_dbManager.IsDataLoaded) {
             DatabaseNotLoaded();
             return;
         }
 
+        // Find the player with the name matching LoginPlayer
+        var loginPlayer = _dbManager.GameStatus.players.FirstOrDefault(p => p.playerName == LoginPlayer);
+
         if (ExampleUnitManager.Instance.PlayerUnits.Count > 0) {
-            Debug.Log("Players already spawned");
-
-            return;
+            Debug.Log("HandleUnits: Units already spawned");
         } else {
-            Debug.LogWarning("Spawning players");
+            Debug.LogWarning("HandleUnits: Spawning fresh Units");
 
-            // Spawn the players
+            // Spawn the player units
             ExampleUnitManager.Instance.SpawnPlayerUnits(_dbManager.GameStatus.players);
-
-            // For now, set the first character to the login player
-            SetLoginPlayerUnit(_dbManager.GameStatus.players[0].units[0]);
-
-            Debug.Log("Login player: " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.name);
-            ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayerUnit = true;
-
-            // Set the player dropdown
-            var dropdown = MainMenuScreen.Instance.PlayerDropdown;
-            var playerNameList = _dbManager.GameStatus.players.Select(u => u.playerName).ToList();
-            dropdown.choices = playerNameList;
-            dropdown.value = "Choose Player";
-            MainMenuScreen.OnPlayerDropdownChoose += () => {
-                Debug.Log("Player dropdown changed: " + dropdown.value);
-
-                // SetLoginPlayerUnit(ExampleUnitManager.Instance.GetPlayer(unitId).Unit);
-            };
         }
 
-        ChangeState(GameState.SpawningEnemies);
+        if (loginPlayer != null) {
+            SetLoginPlayerUnit(loginPlayer.units[0]);
+        } else {
+            Debug.LogError("Login player not found");
+        }
+
+        Debug.Log("SetLoginPlayerUnit: " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.name);
+        ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayerUnit = true;
+
+        ChangeState(GameState.ReplayEnemyTurns);
     }
 
-    private void HandleEnemies() {
-        
-        // Spawn enemies
-        
-        ChangeState(GameState.PlayerTurn);
-    }
-
-    private void HandleHeroTurn() {
+    private void HandleTurn() {
         // If you're making a turn based game, this could show the turn menu, highlight available units etc
         
+
+        Debug.Log("Player " + LoginPlayer + "'s turn with Unit " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.name +
+            " and ID " + ExampleUnitManager.Instance.LogInPlayerUnit.Unit.id);
         // Keep track of how many units need to make a move, once they've all finished, change the state. This could
         // be monitored in the unit manager or the units themselves.
     }
@@ -189,8 +187,8 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 public enum GameState {
     Loading = 0,
     Starting = 1,
-    SpawningPlayers = 2,
-    SpawningEnemies = 3,
+    SpawningUnits = 2,
+    ReplayEnemyTurns = 3,
     PlayerTurn = 4,
     EnemyTurn = 5,
     Win = 6,

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -11,9 +12,9 @@ public class BaseUnit : MonoBehaviour {
     public Unit Unit;
     Animator m_Animator;
 
+    private int _actionsLeft = 2; // This will be set to the number of actions a unit can take in a turn.
     private bool _moved = false;
-
-    private bool _canMove;
+    private bool _canMove = false;
 
     private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
 

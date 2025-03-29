@@ -77,14 +77,18 @@ public class GridManager : MonoBehaviour {
         var x = (int)pos.x;
         var y = (int)pos.y;
 
-        var directions = x % 2 != 0 ? 
-            new[] { new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
-            new[] { new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
+        var directions = y % 2 != 0 ? 
+            new[] { 
+                new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+                new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
+            new[] { 
+                new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+                new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
 
         foreach (var dir in directions) {
             var newPos = pos + dir;
             var newTile = GetTileAtPosition(newPos);
-            if (newTile.isMovable) {
+            if (newTile != null && newTile.isMovable) {
                 movableTiles.Add(newPos);
             }
         }
