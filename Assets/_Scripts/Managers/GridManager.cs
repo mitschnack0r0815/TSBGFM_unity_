@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using Unity.Collections;
 using UnityEngine;
  
@@ -61,6 +62,7 @@ public class GridManager : MonoBehaviour {
     }
  
     public Tile GetTileAtPosition(Vector2 pos) {
+        Debug.Log($"GetTileAtPosition: {pos}");
         if (_tiles.TryGetValue(pos, out var tile)) return tile;
         return null;
     }    
@@ -69,29 +71,33 @@ public class GridManager : MonoBehaviour {
 
         var pos = new Vector2(  unit.Unit.position.x, 
                                 unit.Unit.position.y);
-        var tile = GetTileAtPosition(pos);
-        if (tile == null) return null;
-        var movableTiles = new List<Vector2>();
-        // Add the current tile to the list of movable tiles
-        movableTiles.Add(pos);
-        var x = (int)pos.x;
-        var y = (int)pos.y;
 
-        var directions = y % 2 != 0 ? 
-            new[] { 
-                new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
-                new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
-            new[] { 
-                new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
-                new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
+        var movableTiles = new List<Vector2> { pos }; 
+        GetAllMovableTiles(movableTiles, unit.Unit.moveDistance - 1);
+    
+        // var tile = GetTileAtPosition(pos);
+        // if (tile == null) return null;
+        // var movableTiles = new List<Vector2>();
+        // // Add the current tile to the list of movable tiles
+        // movableTiles.Add(pos);
+        // var x = (int)pos.x;
+        // var y = (int)pos.y;
 
-        foreach (var dir in directions) {
-            var newPos = pos + dir;
-            var newTile = GetTileAtPosition(newPos);
-            if (newTile != null && newTile.isMovable) {
-                movableTiles.Add(newPos);
-            }
-        }
+        // var directions = y % 2 != 0 ? 
+        //     new[] { 
+        //         new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+        //         new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
+        //     new[] { 
+        //         new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+        //         new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
+
+        // foreach (var dir in directions) {
+        //     var newPos = pos + dir;
+        //     var newTile = GetTileAtPosition(newPos);
+        //     if (newTile != null && newTile.isMovable) {
+        //         movableTiles.Add(newPos);
+        //     }
+        // }
 
         if (highlight) {
             UnhighlightTiles();
@@ -104,10 +110,46 @@ public class GridManager : MonoBehaviour {
         return movableTiles;
     }
 
+    private void GetAllMovableTiles(List<Vector2> movableTiles, int depth) {
+        if (depth == 0) return;
+
+        var newPositions = new List<Vector2>(); // Temporary list to store new positions
+
+        foreach (var tilePos in movableTiles) {
+            var tile = GetTileAtPosition(tilePos);
+            if (tile == null || !tile.isMovable) continue;
+
+            var x = (int)tilePos.x;
+            var y = (int)tilePos.y;
+
+            var directions = y % 2 != 0 ? 
+                new[] { 
+                    new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+                    new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
+                new[] { 
+                    new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+                    new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
+
+            foreach (var dir in directions) {
+                var newPos = tilePos + dir;
+                var newTile = GetTileAtPosition(newPos);
+                if (newTile != null && !movableTiles.Contains(newPos) && !newPositions.Contains(newPos)) {
+                    newPositions.Add(newPos); // Add to the temporary list
+                }
+            }
+        }
+
+        // Add all new positions to the original list after the loop
+        movableTiles.AddRange(newPositions);
+
+        depth--;
+        GetAllMovableTiles(movableTiles, depth);
+    }
+
     public void HighlightTiles(List<Vector2> tilePositions, bool raiseY = false) {
         foreach (var tilePos in tilePositions) {
             var tile = GetTileAtPosition(tilePos);
-            if (tile == null) continue;
+            if (tile == null || !tile.isMovable) continue;
             tile.MovableHighlight.SetActive(true);
             if (raiseY) {
                 tile.transform.position += new Vector3(0, 0.05f, 0);
