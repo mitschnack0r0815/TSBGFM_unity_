@@ -12,12 +12,17 @@ public class MainMenuScreen : MonoBehaviour
 
     public Label CurrPlayerLable { get; set; }
 
+    private Label _unitInfo;
+
     public DropdownField PlayerDropdown { get; set; }
     public static event Action OnPlayerDropdownChoose;
 
     public static event Action OnTestBtnClicked;
 
+    public static event Action OnExecuteMoveBtnClicked;
     public static event Action OnEndTurnBtnClicked;
+
+    
 
 
 
@@ -54,9 +59,45 @@ public class MainMenuScreen : MonoBehaviour
 
         CreateMenu(container);
 
+        CreateUnitInfo(container);
+
         root.Add(container);
 
         yield break;
+    }
+
+    public void SetUnitInfo(PlayerUnit playerUnit)
+    {
+        if (playerUnit == null)
+        {
+            _unitInfo.text = "No unit selected.";
+            return;
+        }
+
+        // Use StringBuilder for efficient string concatenation
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"<b>Name:</b> {playerUnit.Unit.name}");
+        sb.AppendLine($"<b>Armor:</b> {playerUnit.Unit.armor}");
+        sb.AppendLine($"<b>Life:</b> {playerUnit.Unit.life}");
+        sb.AppendLine($"<b>Attack:</b> {playerUnit.Unit.moveDistance}");
+        sb.AppendLine($"<b>Actions:</b> {playerUnit.ActionsLeft}/2");
+
+        // Update the UnitInfo label
+        _unitInfo.text = sb.ToString();
+    }
+
+    private void CreateUnitInfo(VisualElement ele) {
+        var container = ele;
+
+        var controlbox = CreateElement<VisualElement>("control-box","bordered-box");
+        container.Add(controlbox);
+
+        var titleLable = CreateElement<Label>("main-lable");
+        titleLable.text = "Unit Info";
+        controlbox.Add(titleLable);
+
+        _unitInfo = CreateElement<Label>("unit-info");
+        controlbox.Add(_unitInfo);  
     }
 
     private void CreateMenu(VisualElement ele) {
@@ -69,6 +110,15 @@ public class MainMenuScreen : MonoBehaviour
         titleLable.text = "Game Menu";
         controlbox.Add(titleLable);
 
+        var btnExecuteMove = CreateElement<Button>("main-btn");
+        btnExecuteMove.text = "Execute Move";
+        btnExecuteMove.clicked += () => {
+            btnExecuteMove.SetEnabled(false);
+            ExampleUnitManager.Instance.LogInPlayerUnit.ExecuteMove();
+            btnExecuteMove.SetEnabled(true);
+        };
+        controlbox.Add(btnExecuteMove);
+
         var btnBoxLabel = CreateElement<Label>("btn-box-label");
         btnBoxLabel.text = "Switch Unit";
         controlbox.Add(btnBoxLabel);
@@ -80,6 +130,14 @@ public class MainMenuScreen : MonoBehaviour
         switchLeftBtn.text = "<";
         switchLeftBtn.clicked += () => {
             Debug.Log("switchLeftBtn clicked");
+            if (ExampleUnitManager.Instance.LogInPlayerUnit.actionStartPosition.x != 
+                ExampleGameManager.Instance.LoginUnit.position.x ||
+                ExampleUnitManager.Instance.LogInPlayerUnit.actionStartPosition.y != 
+                ExampleGameManager.Instance.LoginUnit.position.y) 
+            {
+                Debug.Log("Confirm your move first!");
+                return;
+            }
             ExampleGameManager.Instance.SwitchLoginPlayerUnit(-1);
         };
         btnBox.Add(switchLeftBtn);
@@ -89,6 +147,14 @@ public class MainMenuScreen : MonoBehaviour
         switchRightBtn.text = ">";
         switchRightBtn.clicked += () => {
             Debug.Log("switchLeftBtn clicked");
+            if (ExampleUnitManager.Instance.LogInPlayerUnit.actionStartPosition.x != 
+                ExampleGameManager.Instance.LoginUnit.position.x ||
+                ExampleUnitManager.Instance.LogInPlayerUnit.actionStartPosition.y != 
+                ExampleGameManager.Instance.LoginUnit.position.y) 
+            {
+                Debug.Log("Confirm your move first!");
+                return;
+            }
             ExampleGameManager.Instance.SwitchLoginPlayerUnit(1);
         };
         btnBox.Add(switchRightBtn);

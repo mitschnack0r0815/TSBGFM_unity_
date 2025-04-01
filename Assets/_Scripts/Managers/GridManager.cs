@@ -11,6 +11,7 @@ public class GridManager : MonoBehaviour {
     [SerializeField] private Tile _tileWaterPrefab;
     [SerializeField] private Tile _tileMountainPrefab;
     [SerializeField] private Tile _tileEmptyPrefab;
+    [SerializeField] private Sprite[] landSprites;
     private Dictionary<Vector2, Tile> _tiles;
  
     void Awake() {
@@ -41,7 +42,7 @@ public class GridManager : MonoBehaviour {
                         break;
                     case TileType.Water:
                         _tilePrefab = _tileWaterPrefab;
-                        yPos -= 0.25f;
+                        yPos -= 0.2f;
                         break;
                     case TileType.Mountain:
                         _tilePrefab = _tileMountainPrefab;
@@ -55,6 +56,17 @@ public class GridManager : MonoBehaviour {
                     var spawnedTile = Instantiate(_tilePrefab, new Vector3(xPos, yPos), Quaternion.identity, parentTransform);
                     spawnedTile.name = $"Tile {x} {y}";
                     spawnedTile.pos = new Vector2(x, y);
+
+                    // Assign a random sprite to land tiles
+                    if ((TileType)board.map[x][y] == TileType.Land && landSprites.Length > 0)
+                    {
+                        var spriteRenderer = spawnedTile.GetComponentInChildren<SpriteRenderer>();
+                        if (spriteRenderer != null)
+                        {
+                            spriteRenderer.sprite = landSprites[UnityEngine.Random.Range(0, landSprites.Length)];
+                        }
+                    }
+
                     _tiles[new Vector2(x, y)] = spawnedTile;
                 }
             }
@@ -62,42 +74,20 @@ public class GridManager : MonoBehaviour {
     }
  
     public Tile GetTileAtPosition(Vector2 pos) {
-        Debug.Log($"GetTileAtPosition: {pos}");
+        // Debug.Log($"GetTileAtPosition: {pos}");
         if (_tiles.TryGetValue(pos, out var tile)) return tile;
         return null;
     }    
 
     public List<Vector2> GetMovableTiles(BaseUnit unit, bool highlight = false) {
+        if (unit == null) return null;
+        if (unit.ActionsLeft <= 0) return null;
 
         var pos = new Vector2(  unit.Unit.position.x, 
                                 unit.Unit.position.y);
 
         var movableTiles = new List<Vector2> { pos }; 
-        GetAllMovableTiles(movableTiles, unit.Unit.moveDistance - 1);
-    
-        // var tile = GetTileAtPosition(pos);
-        // if (tile == null) return null;
-        // var movableTiles = new List<Vector2>();
-        // // Add the current tile to the list of movable tiles
-        // movableTiles.Add(pos);
-        // var x = (int)pos.x;
-        // var y = (int)pos.y;
-
-        // var directions = y % 2 != 0 ? 
-        //     new[] { 
-        //         new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
-        //         new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
-        //     new[] { 
-        //         new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
-        //         new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
-
-        // foreach (var dir in directions) {
-        //     var newPos = pos + dir;
-        //     var newTile = GetTileAtPosition(newPos);
-        //     if (newTile != null && newTile.isMovable) {
-        //         movableTiles.Add(newPos);
-        //     }
-        // }
+        GetAllMovableTiles(movableTiles, unit.Unit.moveDistance);
 
         if (highlight) {
             UnhighlightTiles();
@@ -133,7 +123,10 @@ public class GridManager : MonoBehaviour {
             foreach (var dir in directions) {
                 var newPos = tilePos + dir;
                 var newTile = GetTileAtPosition(newPos);
-                if (newTile != null && !movableTiles.Contains(newPos) && !newPositions.Contains(newPos)) {
+                if (newTile != null && !newTile.IsOccupied &&
+                    !movableTiles.Contains(newPos) && 
+                    !newPositions.Contains(newPos)) 
+                {
                     newPositions.Add(newPos); // Add to the temporary list
                 }
             }

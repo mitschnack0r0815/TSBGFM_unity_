@@ -11,11 +11,12 @@ public class BaseUnit : MonoBehaviour {
     public Tile OccupiedTile;
     public Unit Unit;
     Animator m_Animator;
+    private bool _movedAnimation = false;
 
-    private int _actionsLeft = 2; // This will be set to the number of actions a unit can take in a turn.
-    private bool _moved = false;
+    public int ActionsLeft = 2; // This will be set to the number of actions a unit can take in a turn.
     private bool _canMove = false;
 
+    public Vector2 actionStartPosition = new(0, 0); // This will be set to the position of the unit at the start of the turn.
     private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
 
     private void OnStateChanged(GameState newState) {
@@ -35,50 +36,50 @@ public class BaseUnit : MonoBehaviour {
         ExampleGameManager.OnBeforeStateChanged += OnStateChanged;
     }
 
-    private void OnMouseDown() {
+    public virtual void OnMouseDown() {
         // Only allow interaction when it's the hero turn
-        if (ExampleGameManager.Instance.State != GameState.PlayerTurn) return;
-
-        // Don't move if we've already moved
-        if (!_canMove) return;
 
         // Show movement/attack options
 
         // Eventually either deselect or ExecuteMove(). You could split ExecuteMove into multiple functions
         // like Move() / Attack() / Dance()
 
-        Debug.Log("Unit clicked");
+        // Debug.Log("Unit " + Unit.name + " clicked");
     }
 
-    public virtual void ExecuteMove() {
-        // Override this to do some hero-specific logic, then call this base method to clean up the turn
-
-        _canMove = false;
+    public virtual void ExecuteMove() 
+    {
+        
     }
 
     public void MoveUnit(Tile targetTile)
     {
-        if (targetTile == null)
+        if (targetTile == null || ActionsLeft <= 0)
         {
             Debug.LogError("Target tile is null");
             return;
         }
 
-        //transform.Translate(targetTile.transform.position - transform.position);
+        if (OccupiedTile != null)
+        {
+            OccupiedTile.IsOccupied = false;
+        }
 
+        targetTile.IsOccupied = true;
+        OccupiedTile = targetTile;
         targetTile.SetUnit(this);
     }
 
-    public void ToogleMoved()
+    public void ToogleMovedAnimation()
     {
-        if (_moved)
+        if (_movedAnimation)
         {
-            _moved = false;
+            _movedAnimation = false;
             m_Animator.SetBool("Moved", false);
         }
         else
         {
-            _moved = true;
+            _movedAnimation = true;
             m_Animator.SetBool("Moved", true);
         }
     }

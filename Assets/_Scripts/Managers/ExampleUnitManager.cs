@@ -45,9 +45,11 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         // Set the position of the unit
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(unit.position.x, unit.position.y));
         spawnTile.SetUnit(spawnedUnit);
+        spawnTile.IsOccupied = true;
 
+        spawnedUnit.actionStartPosition = new Vector2(unit.position.x, unit.position.y);
         spawnedUnit.Unit = unit;
-        spawnedUnit.name = "Unit_" + unit.name;
+        spawnedUnit.name = "Unit_" + unit.name + "_ID" + unit.id;
         PlayerUnits.Add(spawnedUnit);
 
         // Apply possible modifications here such as potion boosts, team synergies, etc

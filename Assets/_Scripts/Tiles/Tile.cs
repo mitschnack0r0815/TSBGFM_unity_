@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
  
 public class Tile : MonoBehaviour {
@@ -12,6 +13,8 @@ public class Tile : MonoBehaviour {
     [SerializeField] public GameObject MouseHighlight;
 
     [SerializeField] public bool isMovable = false;
+
+    [SerializeField] public bool IsOccupied = false;
 
     public Vector2 pos;
  
@@ -52,14 +55,14 @@ public class Tile : MonoBehaviour {
         Vector3 startPosition = unit.transform.position;
         float elapsedTime = 0f;
 
-        unit.ToogleMoved();
+        unit.ToogleMovedAnimation();
         while (elapsedTime < duration) {
             // Interpolate between the start and target positions
             unit.transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
             elapsedTime += Time.deltaTime;
             yield return null; // Wait for the next frame
         }
-        unit.ToogleMoved();
+        unit.ToogleMovedAnimation();
         
         // Ensure the unit ends exactly at the target position
         unit.transform.position = targetPosition;

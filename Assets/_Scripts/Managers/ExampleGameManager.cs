@@ -18,7 +18,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
     public GameState State { get; private set; }
     public string LoginPlayerName { get; set; } = TestData.loginPlayer;
     public Player LoginPlayer { get; set; }
-    public Unit LoginPlayerUnit { get; set; }
+    public Unit LoginUnit { get; set; }
 
     private DatabaseManager _dbManager;
 
@@ -151,11 +151,11 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             return;
         }
 
-        LoginPlayerUnit = unit;
-        if (LoginPlayerUnit != null) 
+        LoginUnit = unit;
+        if (LoginUnit != null) 
         {
             ExampleUnitManager.Instance.LogInPlayerUnit = ExampleUnitManager.Instance.
-                GetPlayerUnit(LoginPlayerUnit.id);
+                GetPlayerUnit(LoginUnit.id);
         }
 
         ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayerUnit = true;
@@ -164,17 +164,8 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
         GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
 
-// TODO: This is commented out because it bugs...
-        // List<Vector2> resetHighlight = ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves;
-        // if (ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0) {
-        //     GridManager.Instance.UnhighlightTiles(
-        //         ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves);
-        // }
-        
-
-        // GridManager.Instance.GetMovableTiles(
-        //     ExampleUnitManager.Instance.LogInPlayerUnit, highlight:true);
-        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerUnit.name + " -";
+        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginUnit.name + " -";
+        MainMenuScreen.Instance.SetUnitInfo(ExampleUnitManager.Instance.LogInPlayerUnit);
     }
 
     public void SwitchLoginPlayerUnit(int indexJump) {
@@ -186,7 +177,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
         int newIndex = -1;
         for (int i = 0; i < LoginPlayer.units.Length; i++) {
-            if (LoginPlayer.units[i] == LoginPlayerUnit) {
+            if (LoginPlayer.units[i] == LoginUnit) {
                 // Found the current unit, now switch to the next one
                 newIndex = (i + indexJump) % LoginPlayer.units.Length;
                 if (newIndex < 0) newIndex += LoginPlayer.units.Length; // Wrap around if negative
