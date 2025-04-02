@@ -160,7 +160,10 @@ public class MainMenuScreen : MonoBehaviour
         btnBox.Add(switchRightBtn);
 
         var endTurnBtn = CreateElement<Button>("main-btn");
-        endTurnBtn.clicked += () => Debug.Log("endTurnBtn clicked");
+        endTurnBtn.clicked += () => {
+            Debug.Log("endTurnBtn clicked");
+            ExampleGameManager.Instance.EndTurn();
+        };
         endTurnBtn.clicked += OnEndTurnBtnClicked;
         endTurnBtn.text = "End Turn";
         controlbox.Add(endTurnBtn);

@@ -9,6 +9,8 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
     public List<PlayerUnit> PlayerUnits = new();
 
+    public List<PlayerUnit> LoginPlayerPlayerUnits = new();
+
     public PlayerUnit LogInPlayerUnit;
 
     public void SpawnPlayerUnits(Player[] players) {
@@ -23,7 +25,10 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
                     Debug.LogError("Unit is null");
                     continue;
                 }
-                SpawnUnits(unit);
+                PlayerUnit spawnedUnit = SpawnUnits(unit);
+                if (player.playerName == ExampleGameManager.Instance.LoginPlayerName) {
+                    LoginPlayerPlayerUnits.Add(spawnedUnit);
+                } 
             }
         }
     }

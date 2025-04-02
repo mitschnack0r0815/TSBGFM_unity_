@@ -54,7 +54,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             case GameState.PlayerTurn:
                 HandleTurn();
                 break;
-            case GameState.EnemyTurn:
+            case GameState.EndTurn:
                 break;
             case GameState.Win:
                 break;
@@ -164,7 +164,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
         GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
 
-        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginUnit.name + " -";
+        MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerName + " -";
         MainMenuScreen.Instance.SetUnitInfo(ExampleUnitManager.Instance.LogInPlayerUnit);
     }
 
@@ -195,6 +195,40 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         SetLoginPlayerUnit(LoginPlayer.units[newIndex]);
     }
 
+    public void EndTurn() {
+        // Check if the player has finished their turn
+        for (int i = 0; i < LoginPlayer.units.Length; i++) {
+            if (ExampleUnitManager.Instance.LoginPlayerPlayerUnits[i].ActionsLeft > 0) {
+                Debug.Log("Player has not finished their turn yet.");
+            }
+        }
+
+        if (DatabaseManager.Instance.OfflineMode) {
+            Debug.Log("Offline mode: No database submission.");
+
+            // Reset the actions for all player units in offline mode
+            // Get this from the DB in non-offline mode        
+            for (int i = 0; i < LoginPlayer.units.Length; i++) {
+                ExampleUnitManager.Instance.LoginPlayerPlayerUnits[i].ActionsLeft = 2; // Reset actions for the next turn
+            }
+
+            for (int i = 0; i < _dbManager.GameStatus.turnList.Length; i++) {
+                if (_dbManager.GameStatus.turnList[i] == LoginPlayerName) {
+                    int nextIndex = (i + 1) % _dbManager.GameStatus.turnList.Length;
+                    LoginPlayerName = _dbManager.GameStatus.turnList[nextIndex];
+                    Debug.Log("Start next turn: " + LoginPlayerName);
+                    ChangeState(GameState.Starting);
+                    break;
+                }
+            }
+        }
+
+        // DatabaseManager.Instance.SubmitTurn();
+
+        // Change the game state to the next turn
+        ChangeState(GameState.EndTurn);
+    }
+
 }
 
 
@@ -210,7 +244,7 @@ public enum GameState {
     SpawningUnits = 2,
     ReplayEnemyTurns = 3,
     PlayerTurn = 4,
-    EnemyTurn = 5,
+    EndTurn = 5,
     Win = 6,
     Lose = 7,
 }
