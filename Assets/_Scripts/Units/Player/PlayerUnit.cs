@@ -7,6 +7,8 @@ public class PlayerUnit : BaseUnit {
 
     public List<Vector2> PossibleMoves;
 
+    public List<Vector2> PossibleAttacks;
+
     protected override void Awake()
     {
         // Call the base class's Awake method
@@ -80,7 +82,10 @@ public class PlayerUnit : BaseUnit {
         if (ActionsLeft <= 0) {
             GridManager.Instance.UnhighlightTiles();
         } else {
+            // Highlight the tiles the login player can move to or attack
+            GridManager.Instance.UnhighlightTiles();
             GridManager.Instance.GetMovableTiles(this, highlight:true);
+            GridManager.Instance.GetAttackableTiles(this, highlight:true);
         }
 
         MainMenuScreen.Instance.SetUnitInfo(this); // Set the unit info in the UI

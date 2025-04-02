@@ -63,9 +63,11 @@ public class BaseUnit : MonoBehaviour {
         if (OccupiedTile != null)
         {
             OccupiedTile.IsOccupied = false;
+            OccupiedTile.OccupiedUnit = null;
         }
 
         targetTile.IsOccupied = true;
+        targetTile.OccupiedUnit = this;
         OccupiedTile = targetTile;
         targetTile.SetUnit(this);
     }

@@ -114,9 +114,15 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             Debug.Log("HandleUnits: Units already spawned");
         } else {
             Debug.LogWarning("HandleUnits: Spawning fresh Units");
-
             // Spawn the player units
             ExampleUnitManager.Instance.SpawnPlayerUnits(_dbManager.GameStatus.players);
+        }
+
+        ExampleUnitManager.Instance.LoginPlayerPlayerUnits.Clear();
+        foreach (var loginPlayerUnit in LoginPlayer.units)
+        {
+            ExampleUnitManager.Instance.LoginPlayerPlayerUnits.Add(ExampleUnitManager.Instance.PlayerUnits
+                .FirstOrDefault(u => u.Unit.id == loginPlayerUnit.id));
         }
 
         if (LoginPlayer != null) {
@@ -160,9 +166,11 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
         ExampleUnitManager.Instance.LogInPlayerUnit.isLogInPlayerUnit = true;
 
-        // Highlight the tiles the login player can move to
+        // Highlight the tiles the login player can move to or attack
         var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
+        GridManager.Instance.UnhighlightTiles();
         GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
+        GridManager.Instance.GetAttackableTiles(LogInUnit, highlight:true);
 
         MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerName + " -";
         MainMenuScreen.Instance.SetUnitInfo(ExampleUnitManager.Instance.LogInPlayerUnit);

@@ -25,10 +25,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
                     Debug.LogError("Unit is null");
                     continue;
                 }
-                PlayerUnit spawnedUnit = SpawnUnits(unit);
-                if (player.playerName == ExampleGameManager.Instance.LoginPlayerName) {
-                    LoginPlayerPlayerUnits.Add(spawnedUnit);
-                } 
+                SpawnUnits(unit);
             }
         }
     }
@@ -51,7 +48,9 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(unit.position.x, unit.position.y));
         spawnTile.SetUnit(spawnedUnit);
         spawnTile.IsOccupied = true;
+        spawnTile.OccupiedUnit = spawnedUnit;
 
+        spawnedUnit.OccupiedTile = spawnTile;
         spawnedUnit.actionStartPosition = new Vector2(unit.position.x, unit.position.y);
         spawnedUnit.Unit = unit;
         spawnedUnit.name = "Unit_" + unit.name + "_ID" + unit.id;

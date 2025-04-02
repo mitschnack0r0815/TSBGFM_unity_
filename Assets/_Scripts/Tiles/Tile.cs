@@ -16,6 +16,8 @@ public class Tile : MonoBehaviour {
 
     [SerializeField] public bool IsOccupied = false;
 
+    [SerializeField] public BaseUnit OccupiedUnit = null;
+
     public Vector2 pos;
  
     public void Init(bool isOffset) {

@@ -79,6 +79,82 @@ public class GridManager : MonoBehaviour {
         return null;
     }    
 
+    public List<Vector2> GetAttackableTiles(BaseUnit unit, bool highlight = false) {
+        if (unit == null) return null;
+        if (unit.ActionsLeft <= 0) return null;
+
+        var pos = new Vector2(  unit.Unit.position.x, 
+                                unit.Unit.position.y);
+
+        var attackableTiles = new List<Vector2> { pos }; 
+        GetAllAttackableTiles(attackableTiles, unit.Unit.weapons.first.range);
+
+        var attackableUnits = new List<Vector2>(); // Temporary list to store attackable units
+        foreach (var tile in attackableTiles) {
+            var tileObj = GetTileAtPosition(tile);
+            if (tileObj == null) continue;
+
+            // Check if the tile is occupied by an enemy unit
+            if (tileObj.IsOccupied) {
+                if (tileObj.OccupiedUnit == null) continue; // Skip if no unit is present
+                if (tileObj.OccupiedUnit.Unit.faction != unit.Unit.faction &&
+                    unit.Unit.id != tileObj.OccupiedUnit.Unit.id) 
+                {
+                    attackableUnits.Add(tile); // Add the tile to the attackable tiles list
+                } 
+            } 
+        }
+
+        if (highlight) {
+            if (unit is PlayerUnit playerUnit) {
+                playerUnit.PossibleAttacks = attackableUnits;
+            }
+            HighlightTiles(attackableUnits, color: new Color(1f, 0f, 0f, 0.5f));
+        }
+
+        return attackableUnits;
+    }
+
+    private void GetAllAttackableTiles(List<Vector2> attackableTiles, int depth) {
+        if (depth == 0) return;
+
+        var newPositions = new List<Vector2>(); // Temporary list to store new positions
+
+        foreach (var tilePos in attackableTiles) {
+            var tile = GetTileAtPosition(tilePos);
+            if (tile == null) continue;
+
+            var x = (int)tilePos.x;
+            var y = (int)tilePos.y;
+
+            var directions = y % 2 != 0 ? 
+                new[] { 
+                    new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+                    new Vector2(0, -1), new Vector2(1, 1), new Vector2(1, -1) } : 
+                new[] { 
+                    new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), 
+                    new Vector2(0, -1), new Vector2(-1, 1), new Vector2(-1, -1) };
+
+            foreach (var dir in directions) {
+                var newPos = tilePos + dir;
+                var newTile = GetTileAtPosition(newPos);
+                if (newTile != null && newTile.IsOccupied &&
+                    !attackableTiles.Contains(newPos) && 
+                    !newPositions.Contains(newPos)) 
+                {
+                    newPositions.Add(newPos); // Add to the temporary list
+                }
+            }
+        }
+
+        // Add all new positions to the original list after the loop
+        attackableTiles.AddRange(newPositions);
+
+        depth--;
+        GetAllAttackableTiles(attackableTiles, depth);
+    }
+
+
     public List<Vector2> GetMovableTiles(BaseUnit unit, bool highlight = false) {
         if (unit == null) return null;
         if (unit.ActionsLeft <= 0) return null;
@@ -90,7 +166,6 @@ public class GridManager : MonoBehaviour {
         GetAllMovableTiles(movableTiles, unit.Unit.moveDistance);
 
         if (highlight) {
-            UnhighlightTiles();
             if (unit is PlayerUnit playerUnit) {
                 playerUnit.PossibleMoves = movableTiles;
             }
@@ -139,10 +214,22 @@ public class GridManager : MonoBehaviour {
         GetAllMovableTiles(movableTiles, depth);
     }
 
-    public void HighlightTiles(List<Vector2> tilePositions, bool raiseY = false) {
+    public void HighlightTiles(List<Vector2> tilePositions, bool raiseY = false, Color color = default) {
         foreach (var tilePos in tilePositions) {
             var tile = GetTileAtPosition(tilePos);
             if (tile == null || !tile.isMovable) continue;
+
+            var spriteRenderer = tile.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                if (color != default) {
+                    tile.MovableHighlight.GetComponent<SpriteRenderer>().color = color;
+                } else {
+                    // Set a default color if none is provided (greenish)
+                    tile.MovableHighlight.GetComponent<SpriteRenderer>().color = new Color(0.03f, 0.25f, 0f, 0.75f);
+                }
+            }
+
             tile.MovableHighlight.SetActive(true);
             if (raiseY) {
                 tile.transform.position += new Vector3(0, 0.05f, 0);
@@ -162,13 +249,6 @@ public class GridManager : MonoBehaviour {
                 }
             }
         }
-
-        // foreach (var tilePos in tilePositions) {
-        //     var tile = GetTileAtPosition(tilePos);
-        //     if (tile == null) continue;
-        //     tile.MovableHighlight.SetActive(false);
-        //     tile.transform.position -= new Vector3(0, 0.05f, 0);
-        // }
     }
 }
 
