@@ -16,7 +16,7 @@ public class PlayerUnit : BaseUnit {
     }
 
     void Start() {
-        transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+        // transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
     }
 
     void Update()
@@ -25,7 +25,7 @@ public class PlayerUnit : BaseUnit {
             // Set the camera to the login player
             ExampleGameManager.Instance.Cam.transform.position = 
                 ExampleUnitManager.Instance.LogInPlayerUnit.
-                transform.position + new Vector3(0, 0, -10);
+                transform.position + new Vector3(0, 1, -10);
         }
     }
 
