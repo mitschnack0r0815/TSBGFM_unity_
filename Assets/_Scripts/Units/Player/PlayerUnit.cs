@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerUnit : BaseUnit {
+
+    private Animator m_Animator;
     private ExampleUnitManager UnitManager => ExampleUnitManager.Instance;
     private ExampleGameManager GameManager => ExampleGameManager.Instance;
     public bool isLogInPlayerUnit;
@@ -33,6 +35,8 @@ public class PlayerUnit : BaseUnit {
             Debug.Log("Not in Player Turn!");
             return;
         }
+
+        if (ActiveRoutine) return; // Don't allow interaction if the unit is already moving
         MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
 
         if (ActionsLeft <= 0 || this == UnitManager.LogInPlayerUnit) return;
@@ -81,6 +85,8 @@ public class PlayerUnit : BaseUnit {
     }
 
     public override void ExecuteMove() {
+        if (ActiveRoutine) return; // Don't allow interaction if the unit is already moving
+        
         MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
         Debug.Log("PlayerUnit move executed by " + this.name);
         bool didMove = false;

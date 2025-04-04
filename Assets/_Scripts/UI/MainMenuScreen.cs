@@ -16,9 +16,9 @@ public class MainMenuScreen : MonoBehaviour
     private VisualElement _generalInfoContainer;
     private Label _generalInfoLabel;
 
-    public DropdownField PlayerDropdown { get; set; }
+    // public DropdownField PlayerDropdown { get; set; }
 
-    public static event Action OnPlayerDropdownChoose;
+    // public static event Action OnPlayerDropdownChoose;
     public static event Action OnTestBtnClicked;
 
     public static event Action OnExecuteMoveBtnClicked;
@@ -37,7 +37,7 @@ public class MainMenuScreen : MonoBehaviour
     {
         if (Application.isPlaying) return;
         /* This will allow us to see the changes in the editor */
-        StartCoroutine(Generate());
+        //StartCoroutine(Generate());
     }
 
     void Awake() {
@@ -61,9 +61,10 @@ public class MainMenuScreen : MonoBehaviour
         var spacer = CreateElement<VisualElement>("container-display-spacer");
         _generalInfoContainer = CreateElement<VisualElement>("container-display");
 
+        var container_col_2 = CreateElement<VisualElement>("container-menu");
+
         CreateTestMenu(container_col_0);
         CreateMenu(container_col_0);
-        CreateUnitInfo(container_col_0);
         container_row.Add(container_col_0);
 
         container_col_1.Add(spacer);
@@ -71,6 +72,9 @@ public class MainMenuScreen : MonoBehaviour
         container_col_1.Add(_generalInfoContainer);
         _generalInfoContainer.style.display = DisplayStyle.None;
         container_row.Add(container_col_1);
+
+        CreateUnitInfo(container_col_2);
+        container_row.Add(container_col_2);
 
         // This is a mess, ... use background-color to try stuff out
         // container_col_0.style.backgroundColor = new Color(0.5f, 0.5f, 0.5f, 1);
@@ -150,7 +154,7 @@ public class MainMenuScreen : MonoBehaviour
         btnExecuteMove.clicked += () => {
             btnExecuteMove.SetEnabled(false);
             ExampleUnitManager.Instance.LogInPlayerUnit.ExecuteMove();
-            btnExecuteMove.SetEnabled(true);
+            btnExecuteMove.SetEnabled(true); 
         };
         controlbox.Add(btnExecuteMove);
 
@@ -208,13 +212,11 @@ public class MainMenuScreen : MonoBehaviour
 
     private void CreateTestMenu(VisualElement ele) {
         var container = ele;
-        // var viewBox = CreateElement<VisualElement>("view-box");
-        // container.Add(viewBox);
 
         var controlbox = CreateElement<VisualElement>("control-box","bordered-box");
         container.Add(controlbox);
 
-        var titleLable = CreateElement<Label>("main-lable");
+        var titleLable = CreateElement<Label>("main-lable"); 
         titleLable.text = "Test Menu";
         controlbox.Add(titleLable);
 
@@ -249,9 +251,9 @@ public class MainMenuScreen : MonoBehaviour
         // };
         // controlbox.Add(player_2);
 
-        PlayerDropdown = CreateElement<DropdownField>("player-dropdown");
-        PlayerDropdown.RegisterValueChangedCallback(evt => OnPlayerDropdownChoose?.Invoke());
-        controlbox.Add(PlayerDropdown);
+        // PlayerDropdown = CreateElement<DropdownField>("player-dropdown");
+        // PlayerDropdown.RegisterValueChangedCallback(evt => OnPlayerDropdownChoose?.Invoke());
+        // controlbox.Add(PlayerDropdown);
     }
 
     T CreateElement<T>(params string[] classNames) where T : VisualElement, new()

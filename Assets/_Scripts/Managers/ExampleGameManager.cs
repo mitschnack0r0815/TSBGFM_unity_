@@ -78,15 +78,15 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
             GridManager.Instance.GenerateGrid(_dbManager.GameStatus.board);
 
             // Set the player dropdown
-            var dropdown = MainMenuScreen.Instance.PlayerDropdown;
-            var playerNameList = _dbManager.GameStatus.players.Select(u => u.playerName).ToList();
-            dropdown.choices = playerNameList;
-            dropdown.value = "Choose Player";
-            MainMenuScreen.OnPlayerDropdownChoose += () => {
-                Debug.Log("Player dropdown changed: " + dropdown.value);
-                LoginPlayerName = dropdown.value;
-                // SetLoginPlayerUnit(ExampleUnitManager.Instance.GetPlayer(unitId).Unit);
-            };
+            // var dropdown = MainMenuScreen.Instance.PlayerDropdown;
+            // var playerNameList = _dbManager.GameStatus.players.Select(u => u.playerName).ToList();
+            // dropdown.choices = playerNameList;
+            // dropdown.value = "Choose Player";
+            // MainMenuScreen.OnPlayerDropdownChoose += () => {
+            //     Debug.Log("Player dropdown changed: " + dropdown.value);
+            //     LoginPlayerName = dropdown.value;
+            //     // SetLoginPlayerUnit(ExampleUnitManager.Instance.GetPlayer(unitId).Unit);
+            // };
 
             ChangeState(GameState.Starting);  
         } else {
@@ -228,6 +228,8 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
                     break;
                 }
             }
+
+            return;
         }
 
         // DatabaseManager.Instance.SubmitTurn();

@@ -46,8 +46,10 @@ public class Tile : MonoBehaviour {
             return;
         }
         MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
+
         if (isMovable) {
-            if (ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0 &&
+            if (!ExampleUnitManager.Instance.LogInPlayerUnit.ActiveRoutine &&
+                ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0 &&
                 ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Contains(this.pos)) 
             {
                 ExampleUnitManager.Instance.LogInPlayerUnit.MoveUnit(this);

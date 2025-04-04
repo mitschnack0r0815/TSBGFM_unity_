@@ -1,9 +1,8 @@
 :root {
     color: white;
-    margin: 5px;
+    margin: .2%;
     -unity-font-style: bold;
-
-    --border-width: 2px;
+    font-size: 10px;
 }
 
 .container-row {
@@ -43,59 +42,57 @@
 }
 
 .bordered-box {
-    border-width: 2px;
+    border-width: 1px;
     border-radius: 5px;
     border-color: white;
 }
 
 .general-info-box {
     width: 85%;
-    height: 50px;
+    height: 90%;
     background-color: #2c3e50;
     justify-content: center;
     align-items: center;
-}
-
-.view-box {
-    width: 50px;
-    height: 200px;
-    background-color: #2c3e50;
 }
 
 .control-box {
-    width: 90%;
+    /* width: 90%; */
     background-color: #2c3e50;
     justify-content: center;
     align-items: center;
-    padding-bottom: 15px;
-    margin: 5px;
+    padding-bottom: 5%;
+    margin: 2.5%;
 }
 
 .btn-box-label {
-    margin: 5px 5px 0px 5px;
-    padding: 0px;
-    font-size: 10px;
+    margin: 0.2% 0.2% 0% 0.2%;
+    padding: 0%;
+    /* font-size: 5%; */
 }
 
 .btn-box {
-    width: 130px;
+    width: 90%;
     flex-direction: row;
-    margin: 0px 5px 5px 5px;
+    margin: 0% 5% 5% 5%;
 }
 
 .btn {
-    width: 55px;
-    height: 20px;
+    width: 45%;
+    height: 10%;
     background-color: #2c3e50;
+    border-width: 1px;
     border-radius: 5px;
-    margin: 5px;
+    border-color: white;
+    margin: 2.5%;
 }
 
 .main-btn {
     width: 90%;
-    height: 20px;
+    height: 10%;
     background-color: #2c3e50;
+    border-width: 1px;
     border-radius: 5px;
+    border-color: white;
 }
 
 .main-btn:hover, .btn:hover {
@@ -103,13 +100,13 @@
     scale: 1.1;
     transition: 0.5s;
     color: black;
-    border-width: var(--border-width);
+    /* border-width: 1%; */
 }
 
 .player-dropdown {
     width: 90%;
-    height: 30px;
+    height: 10%;
     background-color: #2c3e50;
-    border-radius: 5px;
-    font-size: 10px;
+    /* border-radius: 1%; */
+    font-size: 5%;
 }

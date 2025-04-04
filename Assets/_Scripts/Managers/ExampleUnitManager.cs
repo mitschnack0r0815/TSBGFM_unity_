@@ -30,7 +30,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         }
     }
 
-    PlayerUnit SpawnUnits(Unit unit) {
+    BaseUnit SpawnUnits(Unit unit) {
 
         /* TODO: This is a bit of a hack, but I don't want to make a new prefab for each unit type.
          * Ideally, you would have a prefab for each unit type and use the scriptable object to set the stats
@@ -42,7 +42,7 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
             return null;
         }        
 
-        var spawnedUnit = (PlayerUnit) Instantiate(playerUnit);
+        var spawnedUnit = Instantiate(playerUnit);
 
         // Set the position of the unit
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(unit.position.x, unit.position.y));
@@ -57,7 +57,9 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
         spawnedUnit.actionStartPosition = new Vector2(unit.position.x, unit.position.y);
         spawnedUnit.Unit = unit;
         spawnedUnit.name = "Unit_" + unit.name + "_ID" + unit.id;
-        PlayerUnits.Add(spawnedUnit);
+
+        if (spawnedUnit.Unit.faction != "")
+            PlayerUnits.Add((PlayerUnit)spawnedUnit);
 
         // Apply possible modifications here such as potion boosts, team synergies, etc
         // var stats = playerScriptable.BaseStats;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Mono.Cecil;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,6 +11,8 @@ using UnityEngine.UIElements;
 /// Things like taking damage, dying, animation triggers etc
 /// </summary>
 public class BaseUnit : MonoBehaviour {
+
+    public bool ActiveRoutine = false;
     [SerializeField] public Vector3 OffsetPosition = new(0, 0);
 
     public List<Vector2> PossibleMoves;
@@ -42,6 +45,7 @@ public class BaseUnit : MonoBehaviour {
     {
         // Get the Animator attached to the GameObject you are intending to animate.
         m_Animator = GetComponentInChildren<Animator>();
+        // Debug.Log($"Animator assigned to {gameObject.name}: {m_Animator}");
 
         GetSpecificSprites("front");
 
@@ -54,6 +58,7 @@ public class BaseUnit : MonoBehaviour {
     }
 
     public virtual void OnMouseDown() {
+        if (ActiveRoutine) return; // Don't allow interaction if the unit is already moving
         // Only allow interaction when it's the hero turn
 
         // Show movement/attack options
@@ -66,7 +71,7 @@ public class BaseUnit : MonoBehaviour {
 
     public virtual void ExecuteMove() 
     {
-        
+        if (ActiveRoutine) return; // Don't allow interaction if the unit is already moving
     }
 
     public void MoveUnit(Tile targetTile)
@@ -113,10 +118,16 @@ public class BaseUnit : MonoBehaviour {
             return;
         }
 
-        MainMenuScreen.Instance.UpdateGeneralInfo("Attacked " + targetUnit.name + " with " + 
-         (isRanged ? "ranged" : "meele") + " attack...", true);
-        // Perform attack logic here, e.g., reduce target unit's health
-        // Example: targetUnit.TakeDamage(attackPower);
+        if (isRanged)
+        {
+            MainMenuScreen.Instance.UpdateGeneralInfo("Attacked " + targetUnit.name + " with ranged attack...", true);
+            StartCoroutine(UnitCombat(this, targetUnit, isRanged));
+        }
+        else
+        {
+            MainMenuScreen.Instance.UpdateGeneralInfo("Attacked " + targetUnit.name + " with meele attack...", true);
+            StartCoroutine(UnitCombat(this, targetUnit, isRanged));
+        }
     }
 
     public void RetreatUnit()
@@ -133,7 +144,11 @@ public class BaseUnit : MonoBehaviour {
 
     public void GetSpecificSprites(string childFolder)
     {
-        // ListChildNames();
+        if (childFolder == "side") {
+            m_Animator.SetBool("SideIdle", true);
+        } else { 
+            m_Animator.SetBool("SideIdle", false);
+        }
 
         foreach (Transform child in transform)
         {
@@ -183,6 +198,61 @@ public class BaseUnit : MonoBehaviour {
                 spriteRenderer.flipX = trueOrFalse; // Flip the sprite
             }
         }
+    }
+
+    public IEnumerator UnitCombat(BaseUnit attacker, BaseUnit target, bool isRanged)
+    {
+        if (attacker == null || target == null)
+        {
+            throw new ArgumentNullException("Attacker or target unit cannot be null.");
+        }
+
+        ActiveRoutine = true;
+
+        Weapon attackerWeapon = isRanged ? attacker.Unit.weapons.second : attacker.Unit.weapons.first;
+        int attackStrength = attackerWeapon.strength;
+        int targetArmor = target.Unit.armor;
+
+        for (int i = 0; i < attackerWeapon.attacks; i++)
+        {
+            // Trigger the attack animation
+            m_Animator.SetTrigger("AttackMelee");
+            // Wait for the animation to finish using a coroutine
+            yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+            yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+
+            int roll = CombatLib.RollDice();
+            int hitPoints = 0;
+            if (roll == 6) {
+                hitPoints = attackerWeapon.critPower;
+            }  else if (attackStrength > targetArmor && roll >= 3) {
+                hitPoints = attackerWeapon.attackPower;
+            } else if (attackStrength == targetArmor && roll >= 4) {
+                hitPoints = attackerWeapon.attackPower; 
+            } else if (roll >= 5) {
+                hitPoints = attackerWeapon.attackPower; 
+            } else {
+                hitPoints = 0;
+            }
+            target.Unit.life -= hitPoints;
+            Debug.Log(target.Unit.name + " rolled " + roll + " hit by " + hitPoints + "... attack " + i);
+        }
+
+        ActiveRoutine = false;
+    }
+
+    private IEnumerator smth()
+    {
+        // Wait for 2 seconds
+        yield return new WaitForSeconds(2f);
+
+        // Do something after the wait
+        Debug.Log("Waited for 2 seconds!");
+
+        yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+
+        yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+
     }
     
 }
