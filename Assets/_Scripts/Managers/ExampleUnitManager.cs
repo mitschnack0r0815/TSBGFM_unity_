@@ -46,9 +46,12 @@ public class ExampleUnitManager : StaticInstance<ExampleUnitManager> {
 
         // Set the position of the unit
         var spawnTile = GridManager.Instance.GetTileAtPosition(new Vector2(unit.position.x, unit.position.y));
-        spawnTile.SetUnit(spawnedUnit);
+        
         spawnTile.IsOccupied = true;
         spawnTile.OccupiedUnit = spawnedUnit;
+        spawnedUnit.transform.position = spawnTile.transform.position + spawnedUnit.OffsetPosition;
+        spawnedUnit.ChangeSortingOrder(100 * 
+            (DatabaseManager.Instance.GameStatus.board.y - Mathf.FloorToInt(spawnTile.pos.y)), true);
 
         spawnedUnit.OccupiedTile = spawnTile;
         spawnedUnit.actionStartPosition = new Vector2(unit.position.x, unit.position.y);

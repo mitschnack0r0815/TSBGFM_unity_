@@ -49,7 +49,19 @@ public class Tile : MonoBehaviour {
         }
     }
 
+    // public void PlaceUnit(BaseUnit unit) {
+    //     IsOccupied = true;
+    //     OccupiedUnit = unit;
+    //     unit.OccupiedTile = this;
+    //     unit.transform.position = transform.position + unit.OffsetPosition;
+    //     unit.OccupiedTile = this;
+    // }
+
     public void SetUnit(BaseUnit unit) {
+        int amount = Mathf.FloorToInt(unit.Unit.position.y - this.pos.y);
+        Debug.Log("Amount: " + amount);
+        unit.ChangeSortingOrder(amount);
+
         StartCoroutine(SmoothMove(unit, transform.position + unit.OffsetPosition, 0.5f));
     }
 
@@ -73,14 +85,6 @@ public class Tile : MonoBehaviour {
         unit.ToogleMovedAnimation();
         unit.FlipAllSprites(false);
 
-        float amount = startPosition.y - targetPosition.y;
-        Debug.Log("Amount: " + amount);
-        if (startPosition.y > targetPosition.y) {
-            unit.ChangeSortingOrder(amount);
-        } else if (startPosition.y < targetPosition.y) {
-            unit.ChangeSortingOrder(amount);
-        }
-        
         // Ensure the unit ends exactly at the target position
         unit.transform.position = targetPosition;
     }

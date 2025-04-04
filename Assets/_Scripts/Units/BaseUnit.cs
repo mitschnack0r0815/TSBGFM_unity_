@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// This will share logic for any unit on the field. Could be friend or foe, controlled or not.
@@ -131,33 +132,33 @@ public class BaseUnit : MonoBehaviour {
                 foreach (var spriteRenderer in spriteRenderers)
                 {
                     spriteRenderer.enabled = false; // Make all sprites invisible
-                    // if (Unit.position.y != 0) {
-                    //     // Increase the sorting order by y position
-                    //     spriteRenderer.sortingOrder += (DatabaseManager.Instance.GameStatus.board.y - Unit.position.y) *100; 
-                    // }
                 }
             } else {
                 // If the child is named "side", we want to keep it visible
                 foreach (var spriteRenderer in spriteRenderers)
                 {
                     spriteRenderer.enabled = true; // Make all sprites visible
-                    // if (Unit.position.y != 0) {
-                    //     // Increase the sorting order by y position
-                    //     spriteRenderer.sortingOrder += (DatabaseManager.Instance.GameStatus.board.y - Unit.position.y) *100; 
-                    // }
                 }
             }
         }
     }
 
-    public void ChangeSortingOrder(float amount) {
+    public void ChangeSortingOrder(int amount, bool staticValue = false) {
+        Debug.Log("Changing sorting order by: " + amount + " for unit: " + 
+            this.name + "_" + Unit.id);
+
         foreach (Transform child in transform)
         {
             var spriteRenderers = child.GetComponentsInChildren<SpriteRenderer>();
             foreach (var spriteRenderer in spriteRenderers)
             {
                     // Increase the sorting order by y position
-                    spriteRenderer.sortingOrder += 100 * (int)amount; 
+                    if (staticValue) {
+                        spriteRenderer.sortingOrder += amount; 
+                    } else {
+                        spriteRenderer.sortingOrder += 100 * amount; 
+                    }
+                    
             }
         }
     }
