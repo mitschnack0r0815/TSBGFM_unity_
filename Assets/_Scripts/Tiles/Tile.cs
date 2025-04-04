@@ -14,6 +14,8 @@ public class Tile : MonoBehaviour {
 
     [SerializeField] public bool isMovable = false;
 
+    [SerializeField] public bool blocksVision = false;
+
     [SerializeField] public bool IsOccupied = false;
 
     [SerializeField] public BaseUnit OccupiedUnit = null;

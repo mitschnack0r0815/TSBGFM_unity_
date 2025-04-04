@@ -11,6 +11,10 @@ using UnityEngine.UIElements;
 /// </summary>
 public class BaseUnit : MonoBehaviour {
     [SerializeField] public Vector3 OffsetPosition = new(0, 0);
+
+    public List<Vector2> PossibleMoves;
+    public List<Vector2> FirstWeaponAttacks;
+    public List<Vector2> SeccondWeaponAttacks;
     public Tile OccupiedTile;
     public Unit Unit;
     Animator m_Animator;

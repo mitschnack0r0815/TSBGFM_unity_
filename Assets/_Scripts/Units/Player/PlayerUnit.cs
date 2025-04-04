@@ -5,10 +5,6 @@ using UnityEngine;
 public class PlayerUnit : BaseUnit {
     public bool isLogInPlayerUnit;
 
-    public List<Vector2> PossibleMoves;
-
-    public List<Vector2> PossibleAttacks;
-
     protected override void Awake()
     {
         // Call the base class's Awake method

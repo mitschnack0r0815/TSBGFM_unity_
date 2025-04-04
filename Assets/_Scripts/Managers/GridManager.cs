@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework.Constraints;
 using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
  
 public class GridManager : MonoBehaviour {
@@ -13,6 +14,8 @@ public class GridManager : MonoBehaviour {
     [SerializeField] private Tile _tileEmptyPrefab;
     [SerializeField] private Sprite[] landSprites;
     private Dictionary<Vector2, Tile> _tiles;
+
+    private String[] _playerHighlights = new String[] { "Movable", "MeeleHighlight", "RangedHighlight" };
  
     void Awake() {
         Instance = this;
@@ -91,10 +94,19 @@ public class GridManager : MonoBehaviour {
     public void UpdateUnitViewTiles(BaseUnit baseUnit) {
         UnhighlightTiles();
         GetMovableTiles(baseUnit, highlight:true);
-        GetAttackableTiles(baseUnit, highlight:true);
+        if (baseUnit.Unit.weapons.first != null) {
+            var attackableUnits = GetAttackableTiles(baseUnit, baseUnit.Unit.weapons.first.range, highlight:true);
+            baseUnit.FirstWeaponAttacks = attackableUnits;
+        }
+
+        if (baseUnit.Unit.weapons.second != null) {
+            var color = new Color(0.5f, 0f, 0f, 0.5f);
+            var attackableUnits = GetAttackableTiles(baseUnit, baseUnit.Unit.weapons.second.range, highlight:true, color: color);
+            baseUnit.SeccondWeaponAttacks = attackableUnits;
+        }
     }
 
-    public List<Vector2> GetAttackableTiles(BaseUnit unit, bool highlight = false) {
+    public List<Vector2> GetAttackableTiles(BaseUnit unit, int range, bool highlight = false, Color color = default) {
         if (unit == null) return null;
         if (unit.ActionsLeft <= 0) return null;
 
@@ -102,7 +114,7 @@ public class GridManager : MonoBehaviour {
                                 unit.Unit.position.y);
 
         var attackableTiles = new List<Vector2> { pos }; 
-        GetAllAttackableTiles(attackableTiles, unit.Unit.weapons.first.range);
+        GetAllAttackableTiles(attackableTiles, range);
 
         var attackableUnits = new List<Vector2>(); // Temporary list to store attackable units
         foreach (var tile in attackableTiles) {
@@ -121,10 +133,15 @@ public class GridManager : MonoBehaviour {
         }
 
         if (highlight) {
-            if (unit is PlayerUnit playerUnit) {
-                playerUnit.PossibleAttacks = attackableUnits;
+            if (color == default) {
+                color = new Color(1f, 0f, 0f, 0.5f); // Default color for attackable tiles
+            } 
+
+            string highlightName = "MeeleHighlight";
+            if (range > 1) {
+                highlightName = "RangedHighlight";
             }
-            HighlightTiles(attackableUnits, color: new Color(1f, 0f, 0f, 0.5f));
+            HighlightTiles(attackableUnits, highlightName, color: color);
         }
 
         return attackableUnits;
@@ -137,7 +154,7 @@ public class GridManager : MonoBehaviour {
 
         foreach (var tilePos in attackableTiles) {
             var tile = GetTileAtPosition(tilePos);
-            if (tile == null) continue;
+            if (tile == null || tile.blocksVision) continue;
 
             var x = (int)tilePos.x;
             var y = (int)tilePos.y;
@@ -153,7 +170,7 @@ public class GridManager : MonoBehaviour {
             foreach (var dir in directions) {
                 var newPos = tilePos + dir;
                 var newTile = GetTileAtPosition(newPos);
-                if (newTile != null && newTile.IsOccupied &&
+                if (newTile != null &&
                     !attackableTiles.Contains(newPos) && 
                     !newPositions.Contains(newPos)) 
                 {
@@ -184,7 +201,7 @@ public class GridManager : MonoBehaviour {
             if (unit is PlayerUnit playerUnit) {
                 playerUnit.PossibleMoves = movableTiles;
             }
-            HighlightTiles(movableTiles);
+            HighlightTiles(movableTiles, "Movable");
         }
 
         return movableTiles;
@@ -229,40 +246,57 @@ public class GridManager : MonoBehaviour {
         GetAllMovableTiles(movableTiles, depth);
     }
 
-    public void HighlightTiles(List<Vector2> tilePositions, bool raiseY = false, Color color = default) {
+    public void HighlightTiles(List<Vector2> tilePositions, string highlightName, bool raiseY = false, Color color = default) {
         foreach (var tilePos in tilePositions) {
             var tile = GetTileAtPosition(tilePos);
             if (tile == null || !tile.isMovable) continue;
 
-            var spriteRenderer = tile.GetComponentInChildren<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                if (color != default) {
-                    tile.MovableHighlight.GetComponent<SpriteRenderer>().color = color;
-                } else {
-                    // Set a default color if none is provided (greenish)
-                    tile.MovableHighlight.GetComponent<SpriteRenderer>().color = new Color(0.03f, 0.25f, 0f, 0.75f);
+            foreach (Transform child in tile.transform) {
+                var childGameObject = child.gameObject;
+                if (childGameObject.name != highlightName) continue;
+                if (childGameObject.TryGetComponent<SpriteRenderer>(out var spriteRenderer))
+                {
+                    if (color != default) {
+                        spriteRenderer.color = color;
+                    } else {
+                        // Set a default color if none is provided (greenish)
+                        spriteRenderer.color = new Color(0.03f, 0.25f, 0f, 0.75f);
+                    }
                 }
-            }
 
-            tile.MovableHighlight.SetActive(true);
-            if (raiseY) {
-                tile.transform.position += new Vector3(0, 0.05f, 0);
+                childGameObject.SetActive(true);
+                if (raiseY) {
+                    tile.transform.position += new Vector3(0, 0.05f, 0);
+                }
             }
         }
     }
 
-    public void UnhighlightTiles(bool raiseY = false) {
+    public void UnhighlightTiles(string[] highlightNames = null, bool raiseY = false) {
+        if (highlightNames == null) {
+            highlightNames = _playerHighlights;
+        }
         foreach (var tilePair in _tiles) {
             var tile = tilePair.Value;
-            if (tile.MovableHighlight != null) {
-                    if (tile.MovableHighlight.activeSelf == true) {
+
+            foreach (Transform child in tile.transform) {
+                var childGameObject = child.gameObject;
+                if (Array.Exists(highlightNames, name => name == childGameObject.name)) {
                     if (raiseY) {
                         tile.transform.position -= new Vector3(0, 0.05f, 0);
                     }
-                    tile.MovableHighlight.SetActive(false);
+                    childGameObject.SetActive(false);
                 }
             }
+
+            // if (tile.MovableHighlight != null) {
+            //         if (tile.MovableHighlight.activeSelf == true) {
+            //         if (raiseY) {
+            //             tile.transform.position -= new Vector3(0, 0.05f, 0);
+            //         }
+            //         tile.MovableHighlight.SetActive(false);
+            //     }
+            // }
         }
     }
 }

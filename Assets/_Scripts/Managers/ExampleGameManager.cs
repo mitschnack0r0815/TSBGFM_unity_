@@ -206,6 +206,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
         for (int i = 0; i < LoginPlayer.units.Length; i++) {
             if (ExampleUnitManager.Instance.LoginPlayerPlayerUnits[i].ActionsLeft > 0) {
                 Debug.Log("Player has not finished their turn yet.");
+                return;
             }
         }
 

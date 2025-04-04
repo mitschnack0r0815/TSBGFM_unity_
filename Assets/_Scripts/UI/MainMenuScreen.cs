@@ -79,8 +79,13 @@ public class MainMenuScreen : MonoBehaviour
         sb.AppendLine($"<b>Name:</b> {playerUnit.Unit.name}");
         sb.AppendLine($"<b>Armor:</b> {playerUnit.Unit.armor}");
         sb.AppendLine($"<b>Life:</b> {playerUnit.Unit.life}");
-        sb.AppendLine($"<b>Attack:</b> {playerUnit.Unit.moveDistance}");
+        sb.AppendLine($"<b>Move Distance:</b> {playerUnit.Unit.moveDistance}");
         sb.AppendLine($"<b>Actions:</b> {playerUnit.ActionsLeft}/2");
+        sb.AppendLine($"<br>");
+        sb.AppendLine($"<b>Weapon 1:</b> {playerUnit.Unit.weapons.first.name}");
+        if (playerUnit.Unit.weapons.second.attacks > 0) {
+            sb.AppendLine($"<b>Weapon 2:</b> {playerUnit.Unit.weapons.second.name}");
+        } 
 
         // Update the UnitInfo label
         _unitInfo.text = sb.ToString();
