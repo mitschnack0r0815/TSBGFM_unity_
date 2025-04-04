@@ -20,12 +20,13 @@ public class BaseUnit : MonoBehaviour {
     public List<Vector2> SeccondWeaponAttacks;
     public Tile OccupiedTile;
     public Unit Unit;
-    Animator m_Animator;
+    public Animator m_Animator;
     private bool _movedAnimation = false;
 
     public int ActionsLeft = 2; // This will be set to the number of actions a unit can take in a turn.
     private bool _canMove = false;
 
+    [SerializeField] private bool _startWithSideView = false; // This will be set to true if the unit should start with a side view.
     public Vector2 actionStartPosition = new(0, 0); // This will be set to the position of the unit at the start of the turn.
     public class WantsToAttack
     {
@@ -41,13 +42,22 @@ public class BaseUnit : MonoBehaviour {
         if (newState == GameState.PlayerTurn) _canMove = true;
     }
 
+    private void OnValidate()
+    {
+        GetSpecificSprites("side");
+    }
+
     protected virtual void Awake()
     {
         // Get the Animator attached to the GameObject you are intending to animate.
         m_Animator = GetComponentInChildren<Animator>();
         // Debug.Log($"Animator assigned to {gameObject.name}: {m_Animator}");
 
-        GetSpecificSprites("front");
+        if (_startWithSideView) {
+            GetSpecificSprites("side");
+        } else {
+            GetSpecificSprites("front");
+        }
 
         if (m_Animator == null)
         {
@@ -219,6 +229,9 @@ public class BaseUnit : MonoBehaviour {
             m_Animator.SetTrigger("AttackMelee");
             // Wait for the animation to finish using a coroutine
             yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+            
+            // Trigger the hit animation
+            target.GotHit();
             yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
 
             int roll = CombatLib.RollDice();
@@ -241,6 +254,13 @@ public class BaseUnit : MonoBehaviour {
         ActiveRoutine = false;
     }
 
+    private void GotHit()
+    {
+        // Trigger the hit animation
+        m_Animator.SetTrigger("GotHit");
+        // Wait for the animation to finish using a coroutine
+    }
+
     private IEnumerator smth()
     {
         // Wait for 2 seconds
@@ -250,9 +270,7 @@ public class BaseUnit : MonoBehaviour {
         Debug.Log("Waited for 2 seconds!");
 
         yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
-
         yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
-
     }
     
 }

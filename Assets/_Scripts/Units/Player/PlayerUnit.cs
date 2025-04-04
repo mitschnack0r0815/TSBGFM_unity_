@@ -73,6 +73,13 @@ public class PlayerUnit : BaseUnit {
             } else {
                 UnitManager.LogInPlayerUnit.FlipAllSprites(false);
             }
+
+            GetSpecificSprites("side");
+            if (UnitManager.LogInPlayerUnit.Unit.position.x > this.Unit.position.x) {
+                FlipAllSprites(false);
+            } else {
+                FlipAllSprites(true);
+            }
             return;
         }
 
@@ -86,7 +93,7 @@ public class PlayerUnit : BaseUnit {
 
     public override void ExecuteMove() {
         if (ActiveRoutine) return; // Don't allow interaction if the unit is already moving
-        
+
         MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
         Debug.Log("PlayerUnit move executed by " + this.name);
         bool didMove = false;
