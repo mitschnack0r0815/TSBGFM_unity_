@@ -24,7 +24,14 @@ public class BaseUnit : MonoBehaviour {
     private bool _canMove = false;
 
     public Vector2 actionStartPosition = new(0, 0); // This will be set to the position of the unit at the start of the turn.
-    public Vector2 wantsToAttack = new(0, 0); // This will be set to the position of the unit at the end of the turn.
+    public class WantsToAttack
+    {
+        public bool IsRanged = false;
+        public Vector2 TargetPosition = new Vector2(0, 0);
+    }
+
+    public WantsToAttack AttackIntent = new WantsToAttack();
+
     private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
 
     private void OnStateChanged(GameState newState) {
@@ -98,7 +105,7 @@ public class BaseUnit : MonoBehaviour {
         }
     }
 
-    public void AttackUnit(BaseUnit targetUnit)
+    public void AttackUnit(BaseUnit targetUnit, bool isRanged)
     {
         if (targetUnit == null)
         {
@@ -106,6 +113,8 @@ public class BaseUnit : MonoBehaviour {
             return;
         }
 
+        MainMenuScreen.Instance.UpdateGeneralInfo("Attacked " + targetUnit.name + " with " + 
+         (isRanged ? "ranged" : "meele") + " attack...", true);
         // Perform attack logic here, e.g., reduce target unit's health
         // Example: targetUnit.TakeDamage(attackPower);
     }

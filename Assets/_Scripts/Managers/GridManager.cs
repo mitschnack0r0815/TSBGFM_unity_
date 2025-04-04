@@ -102,6 +102,7 @@ public class GridManager : MonoBehaviour {
         if (baseUnit.Unit.weapons.second != null) {
             var color = new Color(0.5f, 0f, 0f, 0.5f);
             var attackableUnits = GetAttackableTiles(baseUnit, baseUnit.Unit.weapons.second.range, highlight:true, color: color);
+            attackableUnits.RemoveAll(pos => baseUnit.FirstWeaponAttacks.Contains(pos));
             baseUnit.SeccondWeaponAttacks = attackableUnits;
         }
     }

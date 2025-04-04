@@ -40,6 +40,11 @@ public class Tile : MonoBehaviour {
     }
 
     void OnMouseDown() {
+        // Only allow interaction when it's the player turn
+        if (ExampleGameManager.Instance.State != GameState.PlayerTurn) {
+            Debug.Log("Not in Player Turn!");
+            return;
+        }
         MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
         if (isMovable) {
             if (ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0 &&

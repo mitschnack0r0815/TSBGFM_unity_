@@ -28,8 +28,11 @@ public class PlayerUnit : BaseUnit {
     }
 
     public override void OnMouseDown() {
-        // Only allow interaction when it's the hero turn
-        if (GameManager.State != GameState.PlayerTurn) return;
+        // Only allow interaction when it's the player turn
+        if (GameManager.State != GameState.PlayerTurn) {
+            Debug.Log("Not in Player Turn!");
+            return;
+        }
         MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
 
         if (ActionsLeft <= 0 || this == UnitManager.LogInPlayerUnit) return;
@@ -46,7 +49,20 @@ public class PlayerUnit : BaseUnit {
 
         // this refelcts the clicked unit here
         if (this.Unit.faction != GameManager.LoginPlayer.faction) {
-            UnitManager.LogInPlayerUnit.wantsToAttack = new Vector2(this.Unit.position.x, this.Unit.position.y);
+            Vector2 unitPos = new Vector2(this.Unit.position.x, this.Unit.position.y);
+
+            if (UnitManager.LogInPlayerUnit.FirstWeaponAttacks.Contains(unitPos)) {
+                UnitManager.LogInPlayerUnit.AttackIntent.TargetPosition = unitPos;
+                UnitManager.LogInPlayerUnit.AttackIntent.IsRanged = false;
+            } else if (UnitManager.LogInPlayerUnit.SeccondWeaponAttacks.Contains(unitPos)) {
+                UnitManager.LogInPlayerUnit.AttackIntent.TargetPosition = unitPos;
+                UnitManager.LogInPlayerUnit.AttackIntent.IsRanged = true;
+            } else {
+                Debug.Log("Attack not available for this unit!");
+                MainMenuScreen.Instance.UpdateGeneralInfo("Attack not available for this unit!", true);
+                return;
+            }
+
             UnitManager.LogInPlayerUnit.GetSpecificSprites("side");
             if (UnitManager.LogInPlayerUnit.Unit.position.x > this.Unit.position.x) {
                 UnitManager.LogInPlayerUnit.FlipAllSprites(true);
@@ -65,6 +81,7 @@ public class PlayerUnit : BaseUnit {
     }
 
     public override void ExecuteMove() {
+        MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
         Debug.Log("PlayerUnit move executed by " + this.name);
         bool didMove = false;
 
@@ -79,8 +96,18 @@ public class PlayerUnit : BaseUnit {
             didMove = true;
         }
 
+        // This should never happen if the unit was moved beforehand
         if (!didMove) {
-            // attack ?
+            if (AttackIntent.TargetPosition != new Vector2(0, 0)) {
+                Tile targetTile = GridManager.Instance.GetTileAtPosition(AttackIntent.TargetPosition);
+                if (targetTile == null) {
+                    Debug.LogError("Target tile is null");
+                    return;
+                }
+                AttackUnit(targetTile.OccupiedUnit, AttackIntent.IsRanged);
+                
+                didMove = true;
+            } 
         }
 
         if (didMove) {
