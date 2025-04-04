@@ -69,6 +69,7 @@ public class MainMenuScreen : MonoBehaviour
         container_col_1.Add(spacer);
         CreateGeneralInfo(_generalInfoContainer);
         container_col_1.Add(_generalInfoContainer);
+        _generalInfoContainer.style.display = DisplayStyle.None;
         container_row.Add(container_col_1);
 
         // This is a mess, ... use background-color to try stuff out
@@ -120,7 +121,6 @@ public class MainMenuScreen : MonoBehaviour
 
     private void CreateGeneralInfo(VisualElement ele) {
         var container = ele;
-
         var controlbox = CreateElement<VisualElement>("bordered-box", "general-info-box");
         container.Add(controlbox);
 

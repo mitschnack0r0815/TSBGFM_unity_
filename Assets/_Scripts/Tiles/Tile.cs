@@ -40,6 +40,7 @@ public class Tile : MonoBehaviour {
     }
 
     void OnMouseDown() {
+        MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
         if (isMovable) {
             if (ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Count > 0 &&
                 ExampleUnitManager.Instance.LogInPlayerUnit.PossibleMoves.Contains(this.pos)) 

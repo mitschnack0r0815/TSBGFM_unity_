@@ -30,8 +30,7 @@ public class PlayerUnit : BaseUnit {
     public override void OnMouseDown() {
         // Only allow interaction when it's the hero turn
         if (GameManager.State != GameState.PlayerTurn) return;
-
-        
+        MainMenuScreen.Instance.UpdateGeneralInfo("YOU CAN'T SEE THIS!", false);
 
         if (ActionsLeft <= 0 || this == UnitManager.LogInPlayerUnit) return;
 
