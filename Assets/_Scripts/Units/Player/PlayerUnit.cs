@@ -83,9 +83,7 @@ public class PlayerUnit : BaseUnit {
             GridManager.Instance.UnhighlightTiles();
         } else {
             // Highlight the tiles the login player can move to or attack
-            GridManager.Instance.UnhighlightTiles();
-            GridManager.Instance.GetMovableTiles(this, highlight:true);
-            GridManager.Instance.GetAttackableTiles(this, highlight:true);
+            GridManager.Instance.UpdateUnitViewTiles(this);
         }
 
         MainMenuScreen.Instance.SetUnitInfo(this); // Set the unit info in the UI

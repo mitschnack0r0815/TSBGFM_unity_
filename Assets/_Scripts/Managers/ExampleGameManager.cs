@@ -168,9 +168,7 @@ public class ExampleGameManager : StaticInstance<ExampleGameManager> {
 
         // Highlight the tiles the login player can move to or attack
         var LogInUnit = ExampleUnitManager.Instance.LogInPlayerUnit;
-        GridManager.Instance.UnhighlightTiles();
-        GridManager.Instance.GetMovableTiles(LogInUnit, highlight:true);
-        GridManager.Instance.GetAttackableTiles(LogInUnit, highlight:true);
+        GridManager.Instance.UpdateUnitViewTiles(LogInUnit);
 
         MainMenuScreen.Instance.CurrPlayerLable.text = "- " + LoginPlayerName + " -";
         MainMenuScreen.Instance.SetUnitInfo(ExampleUnitManager.Instance.LogInPlayerUnit);

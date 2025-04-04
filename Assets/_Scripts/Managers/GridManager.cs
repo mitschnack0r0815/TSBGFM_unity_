@@ -78,7 +78,7 @@ public class GridManager : MonoBehaviour {
     private void SetSortingLayer(Tile tile, int y) {
         var spriteRenderers = tile.GetComponentsInChildren<SpriteRenderer>(includeInactive: true);
         foreach (var spriteRenderer in spriteRenderers) {
-            spriteRenderer.sortingOrder += y;
+            spriteRenderer.sortingOrder += y * 10;
         }
     }
  
@@ -87,6 +87,12 @@ public class GridManager : MonoBehaviour {
         if (_tiles.TryGetValue(pos, out var tile)) return tile;
         return null;
     }    
+
+    public void UpdateUnitViewTiles(BaseUnit baseUnit) {
+        UnhighlightTiles();
+        GetMovableTiles(baseUnit, highlight:true);
+        GetAttackableTiles(baseUnit, highlight:true);
+    }
 
     public List<Vector2> GetAttackableTiles(BaseUnit unit, bool highlight = false) {
         if (unit == null) return null;
