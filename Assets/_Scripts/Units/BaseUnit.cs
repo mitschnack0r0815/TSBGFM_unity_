@@ -12,6 +12,8 @@ using UnityEngine.UIElements;
 /// </summary>
 public class BaseUnit : MonoBehaviour {
 
+    public static event Action<UnitState> OnBeforeUnitStateChanged;
+    public static event Action<UnitState> OnAfterUnitStateChanged;
     public bool ActiveRoutine = false;
     [SerializeField] public Vector3 OffsetPosition = new(0, 0);
 
@@ -22,9 +24,8 @@ public class BaseUnit : MonoBehaviour {
     public Unit Unit;
     public Animator m_Animator;
     private bool _movedAnimation = false;
-
+    private BaseUnit _targetUnit = null;
     public int ActionsLeft = 2; // This will be set to the number of actions a unit can take in a turn.
-    private bool _canMove = false;
 
     [SerializeField] private bool _startWithSideView = false; // This will be set to true if the unit should start with a side view.
     public Vector2 actionStartPosition = new(0, 0); // This will be set to the position of the unit at the start of the turn.
@@ -35,12 +36,6 @@ public class BaseUnit : MonoBehaviour {
     }
 
     public WantsToAttack AttackIntent = new WantsToAttack();
-
-    private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
-
-    private void OnStateChanged(GameState newState) {
-        if (newState == GameState.PlayerTurn) _canMove = true;
-    }
 
     private void OnValidate()
     {
@@ -63,8 +58,26 @@ public class BaseUnit : MonoBehaviour {
         {
             Debug.LogError("Animator component not found on BaseUnit or its children.");
         }
+    }
 
-        ExampleGameManager.OnBeforeStateChanged += OnStateChanged;
+    public UnitState State { get; private set; } // Add this property to store the current state
+
+    public void ChangeState(UnitState newState) {
+        OnBeforeUnitStateChanged?.Invoke(newState);
+
+        State = newState;
+        switch (newState) {
+            case UnitState.Ready:
+                break;
+            case UnitState.Attacking:
+                break;
+            case UnitState.Done:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
+        }
+
+        OnAfterUnitStateChanged?.Invoke(newState);
     }
 
     public virtual void OnMouseDown() {
@@ -217,6 +230,7 @@ public class BaseUnit : MonoBehaviour {
             throw new ArgumentNullException("Attacker or target unit cannot be null.");
         }
 
+        _targetUnit = target;
         ActiveRoutine = true;
 
         Weapon attackerWeapon = isRanged ? attacker.Unit.weapons.second : attacker.Unit.weapons.first;
@@ -225,14 +239,7 @@ public class BaseUnit : MonoBehaviour {
 
         for (int i = 0; i < attackerWeapon.attacks; i++)
         {
-            // Trigger the attack animation
-            m_Animator.SetTrigger("AttackMelee");
-            // Wait for the animation to finish using a coroutine
-            yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
-            
-            // Trigger the hit animation
-            target.GotHit();
-            yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+
 
             int roll = CombatLib.RollDice();
             int hitPoints = 0;
@@ -247,6 +254,15 @@ public class BaseUnit : MonoBehaviour {
             } else {
                 hitPoints = 0;
             }
+
+            if (hitPoints > 0) {
+                // Trigger the attack animation
+                m_Animator.SetTrigger("AttackMelee");
+                // Wait for the animation to finish using a coroutine
+                yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );                
+                yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+            }
+
             target.Unit.life -= hitPoints;
             Debug.Log(target.Unit.name + " rolled " + roll + " hit by " + hitPoints + "... attack " + i);
         }
@@ -254,23 +270,34 @@ public class BaseUnit : MonoBehaviour {
         ActiveRoutine = false;
     }
 
-    private void GotHit()
+    public IEnumerator PlayAndWaitForAnimation(string animationName)
+    {
+        if (m_Animator == null)
+        {
+            Debug.LogError("Animator is not assigned!");
+            yield break;
+        }
+
+        // Play the animation
+        m_Animator.Play(animationName);
+
+        // Wait for the animation to finish
+        yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1.0f);
+    }
+
+    // Used by the AnimationEvent to trigger the hit animation
+    private void TriggetTargetHitAnimation()
     {
         // Trigger the hit animation
-        m_Animator.SetTrigger("GotHit");
+        _targetUnit.m_Animator.SetTrigger("GotHit");
         // Wait for the animation to finish using a coroutine
     }
-
-    private IEnumerator smth()
-    {
-        // Wait for 2 seconds
-        yield return new WaitForSeconds(2f);
-
-        // Do something after the wait
-        Debug.Log("Waited for 2 seconds!");
-
-        yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
-        yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
-    }
     
+}
+
+[Serializable]
+public enum UnitState {
+    Ready = 0,
+    Attacking = 1,
+    Done = 2,
 }
