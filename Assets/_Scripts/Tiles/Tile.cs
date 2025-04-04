@@ -73,11 +73,11 @@ public class Tile : MonoBehaviour {
         StartCoroutine(SmoothMove(unit, transform.position + unit.OffsetPosition, 0.5f));
     }
 
-    private IEnumerator SmoothMove(BaseUnit unit, Vector3 targetPosition, float duration) {
+    public IEnumerator SmoothMove(BaseUnit unit, Vector3 targetPosition, float duration, bool spriteChange = true) {
         Vector3 startPosition = unit.transform.position;
         float elapsedTime = 0f;
 
-        unit.ToogleMovedAnimation();
+        unit.ToogleMovedAnimation(spriteChange);
         while (elapsedTime < duration) {
             // Interpolate between the start and target positions
             unit.transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
@@ -90,7 +90,7 @@ public class Tile : MonoBehaviour {
             yield return null; // Wait for the next frame
         }
         // unit.transform.position = Mathf.MoveTowards(startPosition, targetPosition, duration);
-        unit.ToogleMovedAnimation();
+        unit.ToogleMovedAnimation(spriteChange);
         unit.FlipAllSprites(false);
 
         // Ensure the unit ends exactly at the target position

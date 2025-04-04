@@ -117,18 +117,18 @@ public class BaseUnit : MonoBehaviour {
         targetTile.SetUnit(this);
     }
 
-    public void ToogleMovedAnimation()
-    {
+    public void ToogleMovedAnimation(bool SpriteChange = true)
+    {        
         if (_movedAnimation)
         {
             _movedAnimation = false;
-            GetSpecificSprites("front");
+            if (SpriteChange) GetSpecificSprites("front");
             m_Animator.SetBool("Moved", false);
         }
         else
         {
             _movedAnimation = true;
-            GetSpecificSprites("side");
+            if (SpriteChange) GetSpecificSprites("side");
             m_Animator.SetBool("Moved", true);
         }
     }
@@ -256,11 +256,14 @@ public class BaseUnit : MonoBehaviour {
             }
 
             if (hitPoints > 0) {
+                StartCoroutine(attacker.OccupiedTile.SmoothMove(this, target.OccupiedTile.transform.position + OffsetPosition, 0.5f, false));
                 // Trigger the attack animation
                 m_Animator.SetTrigger("AttackMelee");
                 // Wait for the animation to finish using a coroutine
                 yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );                
                 yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+
+                StartCoroutine(attacker.OccupiedTile.SmoothMove(this, this.OccupiedTile.transform.position + OffsetPosition, 0.5f, false));
             }
 
             target.Unit.life -= hitPoints;
