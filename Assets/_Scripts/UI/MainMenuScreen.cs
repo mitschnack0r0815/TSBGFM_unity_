@@ -13,10 +13,12 @@ public class MainMenuScreen : MonoBehaviour
     public Label CurrPlayerLable { get; set; }
 
     private Label _unitInfo;
+    private VisualElement _generalInfoContainer;
+    private Label _generalInfoLabel;
 
     public DropdownField PlayerDropdown { get; set; }
-    public static event Action OnPlayerDropdownChoose;
 
+    public static event Action OnPlayerDropdownChoose;
     public static event Action OnTestBtnClicked;
 
     public static event Action OnExecuteMoveBtnClicked;
@@ -35,7 +37,7 @@ public class MainMenuScreen : MonoBehaviour
     {
         if (Application.isPlaying) return;
         /* This will allow us to see the changes in the editor */
-        // StartCoroutine(Generate());
+        StartCoroutine(Generate());
     }
 
     void Awake() {
@@ -52,16 +54,27 @@ public class MainMenuScreen : MonoBehaviour
         var root = _uiDocument.rootVisualElement;
         root.styleSheets.Add(_styleSheet);
 
-   
-        var container = CreateElement<VisualElement>("container");
+        var container_row = CreateElement<VisualElement>("container-row");
+        var container_col_0 = CreateElement<VisualElement>("container-menu");
 
-        CreateTestMenu(container);
+        var container_col_1 = CreateElement<VisualElement>("container");
+        var spacer = CreateElement<VisualElement>("container-display-spacer");
+        _generalInfoContainer = CreateElement<VisualElement>("container-display");
 
-        CreateMenu(container);
+        CreateTestMenu(container_col_0);
+        CreateMenu(container_col_0);
+        CreateUnitInfo(container_col_0);
+        container_row.Add(container_col_0);
 
-        CreateUnitInfo(container);
+        container_col_1.Add(spacer);
+        CreateGeneralInfo(_generalInfoContainer);
+        container_col_1.Add(_generalInfoContainer);
+        container_row.Add(container_col_1);
 
-        root.Add(container);
+        // This is a mess, ... use background-color to try stuff out
+        // container_col_0.style.backgroundColor = new Color(0.5f, 0.5f, 0.5f, 1);
+        // container_col_1.style.backgroundColor = new Color(0.5f, 0.5f, 0.5f, 1);
+        root.Add(container_row);
 
         yield break;
     }
@@ -94,7 +107,7 @@ public class MainMenuScreen : MonoBehaviour
     private void CreateUnitInfo(VisualElement ele) {
         var container = ele;
 
-        var controlbox = CreateElement<VisualElement>("control-box","bordered-box");
+        var controlbox = CreateElement<VisualElement>("control-box", "bordered-box");
         container.Add(controlbox);
 
         var titleLable = CreateElement<Label>("main-lable");
@@ -103,6 +116,23 @@ public class MainMenuScreen : MonoBehaviour
 
         _unitInfo = CreateElement<Label>("unit-info");
         controlbox.Add(_unitInfo);  
+    }
+
+    private void CreateGeneralInfo(VisualElement ele) {
+        var container = ele;
+
+        var controlbox = CreateElement<VisualElement>("bordered-box", "general-info-box");
+        container.Add(controlbox);
+
+        _generalInfoLabel = CreateElement<Label>("main-lable", "general-info-title");
+        _generalInfoLabel.text = "General Info";
+        controlbox.Add(_generalInfoLabel);
+    }
+
+    public void UpdateGeneralInfo(string info, bool visible = true) {
+        if (_generalInfoContainer == null) return;
+        _generalInfoLabel.text = info;
+        _generalInfoContainer.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private void CreateMenu(VisualElement ele) {

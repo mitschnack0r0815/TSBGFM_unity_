@@ -24,6 +24,7 @@ public class BaseUnit : MonoBehaviour {
     private bool _canMove = false;
 
     public Vector2 actionStartPosition = new(0, 0); // This will be set to the position of the unit at the start of the turn.
+    public Vector2 wantsToAttack = new(0, 0); // This will be set to the position of the unit at the end of the turn.
     private void OnDestroy() => ExampleGameManager.OnBeforeStateChanged -= OnStateChanged;
 
     private void OnStateChanged(GameState newState) {
@@ -121,7 +122,7 @@ public class BaseUnit : MonoBehaviour {
         // Example: gameObject.SetActive(false);
     }
 
-    private void GetSpecificSprites(string childFolder)
+    public void GetSpecificSprites(string childFolder)
     {
         // ListChildNames();
 
