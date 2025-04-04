@@ -59,9 +59,7 @@ public class Tile : MonoBehaviour {
 
     public void SetUnit(BaseUnit unit) {
         int amount = Mathf.FloorToInt(unit.Unit.position.y - this.pos.y);
-        Debug.Log("Amount: " + amount);
         unit.ChangeSortingOrder(amount);
-
         StartCoroutine(SmoothMove(unit, transform.position + unit.OffsetPosition, 0.5f));
     }
 

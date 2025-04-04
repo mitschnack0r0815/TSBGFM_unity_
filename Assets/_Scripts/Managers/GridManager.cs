@@ -62,14 +62,23 @@ public class GridManager : MonoBehaviour {
                     {
                         var spriteRenderer = spawnedTile.GetComponentInChildren<SpriteRenderer>();
                         if (spriteRenderer != null)
-                        {
+                        {  
                             spriteRenderer.sprite = landSprites[UnityEngine.Random.Range(0, landSprites.Length)];
                         }
                     }
 
+                    SetSortingLayer(spawnedTile, -y);
+
                     _tiles[new Vector2(x, y)] = spawnedTile;
                 }
             }
+        }
+    }
+
+    private void SetSortingLayer(Tile tile, int y) {
+        var spriteRenderers = tile.GetComponentsInChildren<SpriteRenderer>(includeInactive: true);
+        foreach (var spriteRenderer in spriteRenderers) {
+            spriteRenderer.sortingOrder += y;
         }
     }
  

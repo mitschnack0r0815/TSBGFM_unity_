@@ -144,21 +144,17 @@ public class BaseUnit : MonoBehaviour {
     }
 
     public void ChangeSortingOrder(int amount, bool staticValue = false) {
-        Debug.Log("Changing sorting order by: " + amount + " for unit: " + 
-            this.name + "_" + Unit.id);
-
         foreach (Transform child in transform)
         {
             var spriteRenderers = child.GetComponentsInChildren<SpriteRenderer>();
             foreach (var spriteRenderer in spriteRenderers)
             {
-                    // Increase the sorting order by y position
-                    if (staticValue) {
-                        spriteRenderer.sortingOrder += amount; 
-                    } else {
-                        spriteRenderer.sortingOrder += 100 * amount; 
-                    }
-                    
+                // Increase the sorting order by y position
+                if (staticValue) {
+                    spriteRenderer.sortingOrder += amount; 
+                } else {
+                    spriteRenderer.sortingOrder += 100 * amount; 
+                }
             }
         }
     }
