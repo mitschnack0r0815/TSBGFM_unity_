@@ -70,12 +70,18 @@ public class PlayerUnit : BaseUnit {
             UnitManager.LogInPlayerUnit.GetSpecificSprites("side");
             if (UnitManager.LogInPlayerUnit.Unit.position.x > this.Unit.position.x) {
                 UnitManager.LogInPlayerUnit.FlipAllSprites(true);
+            } else if (UnitManager.LogInPlayerUnit.Unit.position.y > this.Unit.position.y &&
+                       UnitManager.LogInPlayerUnit.Unit.position.x == this.Unit.position.x) {
+                UnitManager.LogInPlayerUnit.FlipAllSprites(true);
             } else {
                 UnitManager.LogInPlayerUnit.FlipAllSprites(false);
             }
 
             GetSpecificSprites("side");
             if (UnitManager.LogInPlayerUnit.Unit.position.x > this.Unit.position.x) {
+                FlipAllSprites(false);
+            } else if (UnitManager.LogInPlayerUnit.Unit.position.y > this.Unit.position.y &&
+                       UnitManager.LogInPlayerUnit.Unit.position.x == this.Unit.position.x) {
                 FlipAllSprites(false);
             } else {
                 FlipAllSprites(true);

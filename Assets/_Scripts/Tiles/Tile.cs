@@ -96,4 +96,34 @@ public class Tile : MonoBehaviour {
         // Ensure the unit ends exactly at the target position
         unit.transform.position = targetPosition;
     }
+
+    public IEnumerator DoubleSmoothMove(BaseUnit attackUnit, Vector3 aDest, BaseUnit defenseUnit, Vector3 dDest, float duration, bool isLeft) {
+        Vector3 dStartPosition = defenseUnit.transform.position;
+        Vector3 aStartPosition = attackUnit.transform.position;
+        // aDest += attackUnit.OffsetPosition;
+        // dDest += defenseUnit.OffsetPosition;
+        float elapsedTime = 0f;
+
+        attackUnit.ToogleMovedAnimation(false);
+        defenseUnit.ToogleMovedAnimation(false);
+        while (elapsedTime < duration) {
+            attackUnit.transform.position = Vector3.Lerp(aStartPosition, aDest, elapsedTime / duration);
+            defenseUnit.transform.position = Vector3.Lerp(dStartPosition, dDest, elapsedTime / duration);
+            
+            // if (startPosition.x > targetPosition.x) {
+            //     attackUnit.FlipAllSprites(true);
+            // } else {
+            //     attackUnit.FlipAllSprites(false);
+            // }
+            elapsedTime += Time.deltaTime;
+            yield return null; // Wait for the next frame
+        }
+        // unit.transform.position = Mathf.MoveTowards(startPosition, targetPosition, duration);
+        attackUnit.ToogleMovedAnimation(false);
+        defenseUnit.ToogleMovedAnimation(false);
+        // attackUnit.FlipAllSprites(false);
+
+        // Ensure the unit ends exactly at the target position
+        attackUnit.transform.position = aDest;
+    }
 }

@@ -256,14 +256,29 @@ public class BaseUnit : MonoBehaviour {
             }
 
             if (hitPoints > 0) {
-                StartCoroutine(attacker.OccupiedTile.SmoothMove(this, target.OccupiedTile.transform.position + OffsetPosition, 0.5f, false));
+                bool isLeft = target.OccupiedTile.transform.position.x < attacker.OccupiedTile.transform.position.x;
+                Vector3 targetOffset = new Vector3((isLeft ? .5f : -.5f), 0);
+                // StartCoroutine(attacker.OccupiedTile.SmoothMove(this, 
+                //     target.OccupiedTile.transform.position + OffsetPosition + targetOffset, 0.5f, false));
+
+                Vector3 combatTile = target.OccupiedTile.transform.position + OffsetPosition;
+                StartCoroutine(attacker.OccupiedTile.DoubleSmoothMove(
+                    attacker, combatTile + targetOffset,
+                    target, combatTile - targetOffset, 0.5f, isLeft));
+
+                yield return new WaitForSeconds(0.5f);
+                if (isLeft) attacker.FlipAllSprites(true);
                 // Trigger the attack animation
                 m_Animator.SetTrigger("AttackMelee");
                 // Wait for the animation to finish using a coroutine
                 yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );                
                 yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
 
-                StartCoroutine(attacker.OccupiedTile.SmoothMove(this, this.OccupiedTile.transform.position + OffsetPosition, 0.5f, false));
+                StartCoroutine(attacker.OccupiedTile.DoubleSmoothMove(
+                    attacker, attacker.OccupiedTile.transform.position + OffsetPosition,
+                    target, combatTile, 0.5f, isLeft));
+                    
+                // StartCoroutine(attacker.OccupiedTile.SmoothMove(this, this.OccupiedTile.transform.position + OffsetPosition, 0.5f, false));
             }
 
             target.Unit.life -= hitPoints;
