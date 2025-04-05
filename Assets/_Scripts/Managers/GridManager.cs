@@ -49,7 +49,7 @@ public class GridManager : MonoBehaviour {
                         break;
                     case TileType.Mountain:
                         _tilePrefab = _tileMountainPrefab;
-                        yPos += UnityEngine.Random.Range(0.1f, 0.2f);
+                        // yPos += UnityEngine.Random.Range(0.1f, 0.2f);
                         break;
                     default:
                         _tilePrefab = _tileEmptyPrefab;

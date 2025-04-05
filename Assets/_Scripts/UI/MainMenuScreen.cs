@@ -100,9 +100,18 @@ public class MainMenuScreen : MonoBehaviour
         sb.AppendLine($"<b>Move Distance:</b> {playerUnit.Unit.moveDistance}");
         sb.AppendLine($"<b>Actions:</b> {playerUnit.ActionsLeft}/2");
         sb.AppendLine($"<br>");
-        sb.AppendLine($"<b>Weapon 1:</b> {playerUnit.Unit.weapons.first.name}");
+        sb.AppendLine($"{playerUnit.Unit.weapons.first.name}");
+        sb.AppendLine($"<b>Strength:</b> {playerUnit.Unit.weapons.first.strength}");
+        sb.AppendLine($"<b>Attacks:</b> {playerUnit.Unit.weapons.first.attacks}");
+        sb.AppendLine($"<b>Range:</b> {playerUnit.Unit.weapons.first.range}");
+        sb.AppendLine($"<b>Power:</b> {playerUnit.Unit.weapons.first.attackPower} / {playerUnit.Unit.weapons.first.critPower}");
+        sb.AppendLine($"<br>");
         if (playerUnit.Unit.weapons.second.attacks > 0) {
-            sb.AppendLine($"<b>Weapon 2:</b> {playerUnit.Unit.weapons.second.name}");
+            sb.AppendLine($"{playerUnit.Unit.weapons.second.name}");
+            sb.AppendLine($"<b>Strength:</b> {playerUnit.Unit.weapons.second.strength}");
+            sb.AppendLine($"<b>Attacks:</b> {playerUnit.Unit.weapons.second.attacks}");
+            sb.AppendLine($"<b>Range:</b> {playerUnit.Unit.weapons.second.range}");
+            sb.AppendLine($"<b>Power:</b> {playerUnit.Unit.weapons.second.attackPower} / {playerUnit.Unit.weapons.second.critPower}");
         } 
 
         // Update the UnitInfo label

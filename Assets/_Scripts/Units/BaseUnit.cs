@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 /// Things like taking damage, dying, animation triggers etc
 /// </summary>
 public class BaseUnit : MonoBehaviour {
-
+    [SerializeField] private GameObject _FCText;
     public static event Action<UnitState> OnBeforeUnitStateChanged;
     public static event Action<UnitState> OnAfterUnitStateChanged;
     public bool ActiveRoutine = false;
@@ -25,6 +25,9 @@ public class BaseUnit : MonoBehaviour {
     public Animator m_Animator;
     private bool _movedAnimation = false;
     private BaseUnit _targetUnit = null;
+
+    private int _receivedHit = 0; // This will be set to the amount of damage received by the unit.
+    private bool _wasCriticalHit = false; // This will be set to true if the unit was critically hit.
     public int ActionsLeft = 2; // This will be set to the number of actions a unit can take in a turn.
 
     [SerializeField] private bool _startWithSideView = false; // This will be set to true if the unit should start with a side view.
@@ -243,7 +246,9 @@ public class BaseUnit : MonoBehaviour {
 
             int roll = CombatLib.RollDice();
             int hitPoints = 0;
+            target._wasCriticalHit = false;
             if (roll == 6) {
+                target._wasCriticalHit = true;
                 hitPoints = attackerWeapon.critPower;
             }  else if (attackStrength > targetArmor && roll >= 3) {
                 hitPoints = attackerWeapon.attackPower;
@@ -256,6 +261,7 @@ public class BaseUnit : MonoBehaviour {
             }
 
             if (hitPoints > 0) {
+                target._receivedHit = hitPoints;
                 bool isLeft = target.OccupiedTile.transform.position.x < attacker.OccupiedTile.transform.position.x;
                 Vector3 targetOffset = new Vector3((isLeft ? .5f : -.5f), 0);
                 // StartCoroutine(attacker.OccupiedTile.SmoothMove(this, 
@@ -266,6 +272,7 @@ public class BaseUnit : MonoBehaviour {
                     attacker, combatTile + targetOffset,
                     target, combatTile - targetOffset, 0.5f, isLeft));
 
+                // The wait x sec time is crap but it works for now
                 yield return new WaitForSeconds(0.5f);
                 if (isLeft) attacker.FlipAllSprites(true);
                 // Trigger the attack animation
@@ -273,6 +280,7 @@ public class BaseUnit : MonoBehaviour {
                 // Wait for the animation to finish using a coroutine
                 yield return new WaitUntil(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );                
                 yield return new WaitWhile(() => m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime <= 1.0f );
+                yield return new WaitForSeconds(0.5f);
 
                 StartCoroutine(attacker.OccupiedTile.DoubleSmoothMove(
                     attacker, attacker.OccupiedTile.transform.position + OffsetPosition,
@@ -306,6 +314,24 @@ public class BaseUnit : MonoBehaviour {
     // Used by the AnimationEvent to trigger the hit animation
     private void TriggetTargetHitAnimation()
     {
+        if (_FCText != null)
+        {
+            var text = Instantiate(_FCText, _targetUnit.transform.position, Quaternion.identity, _targetUnit.transform);
+            if (_targetUnit._wasCriticalHit) {
+                Vector3 critTextOffset = new Vector3(0, .5f, 0);
+                var critText = Instantiate(_FCText, _targetUnit.transform.position + critTextOffset, Quaternion.identity, _targetUnit.transform);
+                critText.GetComponent<TextMesh>().color = Color.red; // Set color to red for critical hit
+                critText.GetComponent<TextMesh>().text = "CRITICAL HIT! " + _targetUnit._receivedHit.ToString();
+                text.GetComponent<TextMesh>().color = Color.red; // Set color to red for critical hit
+                text.GetComponent<TextMesh>().text = _targetUnit._receivedHit.ToString();
+            } else {
+                text.GetComponent<TextMesh>().color = Color.white; // Set color to white for normal hit
+                text.GetComponent<TextMesh>().text = _targetUnit._receivedHit.ToString();
+            }
+            
+            // Optionally, you can add a delay before hiding the text
+            // StartCoroutine(HideTextAfterDelay(1.0f)); // Hide after 1 second
+        }
         // Trigger the hit animation
         _targetUnit.m_Animator.SetTrigger("GotHit");
         // Wait for the animation to finish using a coroutine
